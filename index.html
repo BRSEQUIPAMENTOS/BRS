@@ -458,7 +458,7 @@
     </form>
     <div style="text-align:center; margin-top:8px;"><a href="#" id="loginEsqueciSenhaLink" style="font-size:12px; color:#8A8F87;">Esqueci minha senha</a></div>
     <div id="loginMsg" style="margin-top:10px; font-size:12.5px; min-height:18px;"></div>
-    <div style="margin-top:8px; font-size:10.5px; color:#9AA79F; text-align:center;">Versao 195 - 04/11/2026</div>
+    <div style="margin-top:8px; font-size:10.5px; color:#9AA79F; text-align:center;">Versao 196 - 11/11/2026</div>
     <div id="loginOfflineWrap" class="hidden" style="margin-top:6px;">
       <button id="loginOfflineBtn" style="width:100%; padding:8px; background:transparent; color:#8A8F87; border:1px solid #E1E6DE; border-radius:6px; font-size:12.5px; cursor:pointer;">Continuar sem conexao (usa os dados salvos neste navegador)</button>
     </div>
@@ -496,7 +496,7 @@
     <div style="height:3px; width:60px; background:#91C53E; border-radius:2px; margin-bottom:34px;"></div>
     <div id="painelPastasGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(172px, 1fr)); gap:14px;"></div>
     <div id="painelMinhasAtividades" style="margin-top:28px;"></div>
-    <p style="margin:30px 0 0; font-size:11px; color:#9AA79F;">Versao 195 - 04/11/2026</p>
+    <p style="margin:30px 0 0; font-size:11px; color:#9AA79F;">Versao 196 - 11/11/2026</p>
   </div>
 </div>
 
@@ -607,6 +607,7 @@
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button type="button" class="btn secondary btn-sm" id="acompExpandirBtn">Abrir tudo</button>
             <button type="button" class="btn secondary btn-sm" id="acompRecolherBtn">Recolher tudo</button>
+            <label style="font-size:12.5px; display:flex; align-items:center; gap:4px;"><input type="checkbox" id="acompRelConcluidas" style="width:auto;"> Incluir atividades concluidas no relatorio</label>
             <button type="button" class="btn secondary btn-sm btn-leitura" id="gestaoGerarRelatorioBtn">&#128231; Relatorio para e-mail</button>
             <button type="button" class="btn secondary btn-sm btn-leitura" id="gestaoGerarPdfBtn">&#128196; Gerar PDF</button>
           </div>
@@ -7054,6 +7055,10 @@ function ctxTextoAtv(a){
   if (a.alvoNome) partes.push(a.alvoNome);
   return partes.join(" - ");
 }
+// mais urgente (prazo mais proximo) em cima; sem prazo por ultimo
+function ordAtv(arr){
+  return [...arr].sort((a,b)=>String(a.prazo||"9999-99-99").localeCompare(String(b.prazo||"9999-99-99")) || String(a.criadoEm||"").localeCompare(String(b.criadoEm||"")) || (a.id-b.id));
+}
 let acompEditId = null;
 function obsBlocoHtml(tipo,id){
   const hoje = fmtISO(hojeUTC());
@@ -7212,7 +7217,7 @@ function gitemBlocoHtml(g, p, seta){
   const lin = g.membros.map(m=>{ const v = alvoValidoAcomp(m); const {dataLimite} = calcularDataLimiteLote(v.lote); return `<tr><td>Lote ${escAttrAcomp(v.lote.noLote)}</td><td>${m.tipo==="equip"?"Equipamento":"Peca/Conjunto avulso"}</td><td>${escAttrAcomp(v.nome)}</td><td>${v.lote.ordem?v.lote.ordem+"o":"nao definida"}</td><td>${dataLimite?fmtBR(dataLimite):"-"}</td></tr>`; }).join("");
   let corpo = `<table class="tabela-itens-lote" style="font-size:12.5px;"><tr><th>Lote</th><th>Tipo</th><th>Equipamento/Peca</th><th>Ordem de fabricacao</th><th>Limite de entrega</th></tr>${lin}</table>`;
   corpo += `<div style="margin-top:8px;"><div class="muted" style="font-size:12px; font-weight:600;">Atividades do grupo (valem para todos) - ${atv.length} aberta(s)</div>`+
-    (atv.map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>')+
+    (ordAtv(atv).map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>')+
     atvFormHtml(`data-ped="${p.id}" data-lote="" data-gitem="${g.id}" data-tipo="" data-alvo="" data-nome=""`, "gi"+g.id)+`</div>`;
   corpo += obsBlocoHtml("gitem", g.id);
   corpo += `<div data-edicao style="margin:10px 0;"><button type="button" class="btn secondary btn-sm" data-acao="desagrupar-itens" data-gid="${g.id}">Desagrupar equipamentos/pecas</button></div>`;
@@ -7250,12 +7255,12 @@ function loteBlocoHtml(l, p, seta){
     const atv = DB.atividadesAcomp.filter(a=>a.loteId===l.id && !a.grupoId && !a.grupoItemId && !a.concluida && (!a.alvoTipo || (a.alvoTipo===al.tipo && a.alvoId===al.id)));
     const ctx = `data-ped="${p.id}" data-lote="${l.id}" data-tipo="${al.tipo}" data-alvo="${al.id}" data-nome="${escAttrAcomp(al.nome).replace(/"/g,"&quot;")}"`;
     const corpo1 = `<div style="margin-top:6px;"><div class="muted" style="font-size:12px; font-weight:600;">Atividades - ${atv.length} aberta(s)</div>`+
-      (atv.map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>') + atvFormHtml(ctx, `a${l.id}-${al.tipo}${al.id}`) + `</div>` + obsBlocoHtml("lote",l.id);
+      (ordAtv(atv).map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>') + atvFormHtml(ctx, `a${l.id}-${al.tipo}${al.id}`) + `</div>` + obsBlocoHtml("lote",l.id);
     return detalhesAcomp("l"+l.id, resumoLote, corpo1, 1);
   }
   const gerais = DB.atividadesAcomp.filter(a=>a.loteId===l.id && !a.alvoTipo && !a.grupoId && !a.concluida);
   let corpoL = `<div style="margin-top:6px;"><div class="muted" style="font-size:12px; font-weight:600;">Atividades do lote (gerais) - ${gerais.length} aberta(s)</div>`+
-    (gerais.map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>') +
+    (ordAtv(gerais).map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>') +
     atvFormHtml(`data-ped="${p.id}" data-lote="${l.id}" data-tipo="" data-alvo="" data-nome=""`, "lt"+l.id) + `</div>`;
   const livresL = alvos.filter(al=>!grupoItemDoAlvo(l.id, al.tipo, al.id));
   if (livresL.length >= 2) corpoL += `<div data-edicao style="margin:8px 0;"><button type="button" class="btn secondary btn-sm" data-acao="agrupar-itens" data-ped="${p.id}" data-lote="${l.id}">&#128279; Agrupar equipamentos/pecas deste lote</button></div>`;
@@ -7265,7 +7270,7 @@ function loteBlocoHtml(l, p, seta){
     const ab = atv.length;
     const k = `a${l.id}-${al.tipo}${al.id}`;
     const ctx = `data-ped="${p.id}" data-lote="${l.id}" data-tipo="${al.tipo}" data-alvo="${al.id}" data-nome="${escAttrAcomp(al.nome).replace(/"/g,"&quot;")}"`;
-    const conteudo = (atv.map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>') + atvFormHtml(ctx, k);
+    const conteudo = (ordAtv(atv).map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>') + atvFormHtml(ctx, k);
     return detalhesAcomp(k, `${seta} <span class="pill" style="background:var(--primary-dark);">${al.rot}</span> Lote ${l.noLote} - ${escAttrAcomp(al.nome)}${grupoItemDoAlvo(l.id,al.tipo,al.id)?' <span class="pill" style="background:var(--accent);">em grupo</span>':''} <span class="muted" style="font-weight:400;">- ${ab} atividade(s) aberta(s)</span>`, conteudo, 1);
   }).join("") || '<p class="muted">Este lote nao tem equipamento nem peca.</p>';
   corpoL += obsBlocoHtml("lote",l.id);
@@ -7276,7 +7281,7 @@ function grupoBlocoHtml(gid, membros, p, seta){
   const lin = membros.map(l=>{ const {dataLimite}=calcularDataLimiteLote(l); return `<tr><td>Lote ${escAttrAcomp(l.noLote)}</td><td>${l.ordem?l.ordem+"o":"nao definida"}</td><td>${dataLimite?fmtBR(dataLimite):"-"}</td></tr>`; }).join("");
   let corpo = `<table class="tabela-itens-lote" style="font-size:12.5px; max-width:480px;"><tr><th>Lote</th><th>Ordem de fabricacao</th><th>Limite de entrega</th></tr>${lin}</table>`;
   corpo += `<div style="margin-top:8px;"><div class="muted" style="font-size:12px; font-weight:600;">Atividades do grupo (valem para todos os lotes) - ${atv.length} aberta(s)</div>`+
-    (atv.map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>')+
+    (ordAtv(atv).map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>')+
     atvFormHtml(`data-ped="${p.id}" data-lote="" data-grupo="${gid}" data-tipo="" data-alvo="" data-nome=""`, "g"+gid)+`</div>`;
   corpo += obsBlocoHtml("grupo", gid);
   corpo += `<div data-edicao style="margin:10px 0;"><button type="button" class="btn secondary btn-sm" data-acao="desagrupar" data-gid="${gid}">Desagrupar lotes</button></div>`;
@@ -7331,7 +7336,7 @@ function renderAcompanhamento(){
   const livresTodas = DB.atividadesAcomp.filter(a=>!a.pedidoId);
   const livres = livresTodas.filter(a=>!a.concluida), livresConc = livresTodas.filter(a=>a.concluida);
   html += detalhesAcomp("livres", `${seta} Atividades sem pedido <span class="muted" style="font-weight:400;">- ${livres.length} aberta(s)</span>`,
-    (livres.map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>') + atvFormHtml('data-ped="" data-lote="" data-tipo="" data-alvo="" data-nome=""', "livres")
+    (ordAtv(livres).map(a=>atvLinhaHtml(a,false)).join("") || '<p class="muted" style="margin:4px 0;">Nenhuma atividade ainda.</p>') + atvFormHtml('data-ped="" data-lote="" data-tipo="" data-alvo="" data-nome=""', "livres")
     + (livresConc.length ? `<h4 style="margin:14px 0 4px; color:var(--primary-dark);">Historico - atividades concluidas</h4>`+livresConc.map(atvHistHtml).join("") : ""), 0);
   root.innerHTML = html;
   root.querySelectorAll("details[data-k]").forEach(d=>d.addEventListener("toggle", ()=>{ if (d.open) acompAbertos.add(d.dataset.k); else acompAbertos.delete(d.dataset.k); }));
@@ -7664,8 +7669,11 @@ function itensSolicitadosNaSemana(){
   return resultado.sort((a,b)=>b.data-a.data);
 }
 
+function relIncluiConcluidas(){ const c = document.getElementById("acompRelConcluidas"); return !!(c && c.checked); }
 function htmlAtividadesRelatorio(lista){
+  if (!relIncluiConcluidas()) lista = lista.filter(a=>!a.concluida);
   if (!lista.length) return "";
+  lista = ordAtv(lista);
   return `<ul style="margin:4px 0 8px 18px; padding:0;">`+lista.map(a=>`<li>${a.concluida?"[concluida] ":""}<strong>${escaparHtmlSimples(a.titulo)}</strong> - ${escaparHtmlSimples(nomeSetorPorId(a.setor)||"-")} / ${escaparHtmlSimples(a.responsavel?nomeExibicao(a.responsavel):"sem responsavel")}${a.prazo?" - prazo "+fmtBR(parseDate(a.prazo)):""}</li>`).join("")+`</ul>`;
 }
 function gerarSecaoPedido(pedido){
@@ -7745,7 +7753,7 @@ function gerarRelatorioHtml(){
   if (peds.length) {
     for (const p of peds) { html += gerarSecaoPedido(p); html += `<hr style="border:none; border-top:1px solid #ddd; margin:18px 0;">`; }
   } else html += `<p style="color:#8A8F87;">Nenhum Pedido aberto.</p>`;
-  const livres = DB.atividadesAcomp.filter(a=>!a.pedidoId);
+  const livres = DB.atividadesAcomp.filter(a=>!a.pedidoId && (relIncluiConcluidas() || !a.concluida));
   html += `<h3 style="color:#14462E;">Atividades sem pedido</h3>` + (livres.length ? htmlAtividadesRelatorio(livres) : `<p style="color:#8A8F87;">Nenhuma.</p>`);
   html += gerarSecaoIndicadoresPPCP();
   html += `</div>`;
