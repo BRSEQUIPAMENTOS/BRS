@@ -188,6 +188,18 @@
   .resp-tag { display:inline-block; font-size:10px; font-weight:700; padding:1px 8px; border-radius:999px; }
   .resp-tag.eng { background:#E3F0FA; color:#1B5E8C; } .resp-tag.prod { background:#E3F1E7; color:#14462E; } .resp-tag.ppcp { background:#F6EEDB; color:#7A5A12; }
   .tabela-itens-lote td.auto { background:#F7F9F6; }
+  .itens-grupo-titulo { flex-wrap:wrap; }
+  .alerta-min { flex-basis:100%; font-size:11.5px; font-weight:600; background:#FFF4CC; color:#7a5a00; border-radius:6px; padding:4px 8px; }
+  details.itens-det[open] > summary .alerta-min { display:none; }
+  .itens-sub-rotulo { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.4px; color:var(--muted,#6b7a6b); margin:6px 0 2px; }
+  details.estr-det { margin:12px 0 4px 22px; border-left:3px solid #5B8DB8; border-radius:0 8px 8px 0; background:#F3F8FC; }
+  details.estr-det > summary { cursor:pointer; list-style:none; padding:6px 10px; font-size:12.5px; font-weight:700; color:#274B6B; display:flex; align-items:center; gap:8px; }
+  details.estr-det > summary::-webkit-details-marker { display:none; }
+  details.estr-det > summary::before { content:"\25B6"; font-size:9px; transition:transform .15s; }
+  details.estr-det[open] > summary::before { transform:rotate(90deg); }
+  details.estr-det > summary .estr-resumo { margin-left:auto; font-weight:500; font-size:11px; color:#4b6a85; }
+  details.estr-det .estr-box { margin:0; border:0; background:transparent; padding:2px 10px 8px; }
+  .estr-arv { color:#5B8DB8; font-family:monospace; margin-right:4px; }
   .estr-box { margin-top:12px; padding:8px 10px; border:1px dashed var(--border,#cfd8cf); border-radius:8px; background:#FAFBF9; }
   .estr-titulo { font-size:12px; font-weight:700; color:var(--text,#2c3a2c); margin-bottom:4px; }
   .estr-tab { font-size:12px; width:100%; }
@@ -463,7 +475,7 @@
     </form>
     <div style="text-align:center; margin-top:8px;"><a href="#" id="loginEsqueciSenhaLink" style="font-size:12px; color:#8A8F87;">Esqueci minha senha</a></div>
     <div id="loginMsg" style="margin-top:10px; font-size:12.5px; min-height:18px;"></div>
-    <div style="margin-top:8px; font-size:10.5px; color:#9AA79F; text-align:center;">Versao 199 - 16/11/2026</div>
+    <div style="margin-top:8px; font-size:10.5px; color:#9AA79F; text-align:center;">Versao 200 - 16/11/2026</div>
     <div id="loginOfflineWrap" class="hidden" style="margin-top:6px;">
       <button id="loginOfflineBtn" style="width:100%; padding:8px; background:transparent; color:#8A8F87; border:1px solid #E1E6DE; border-radius:6px; font-size:12.5px; cursor:pointer;">Continuar sem conexao (usa os dados salvos neste navegador)</button>
     </div>
@@ -501,7 +513,7 @@
     <div style="height:3px; width:60px; background:#91C53E; border-radius:2px; margin-bottom:34px;"></div>
     <div id="painelPastasGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(172px, 1fr)); gap:14px;"></div>
     <div id="painelMinhasAtividades" style="margin-top:28px;"></div>
-    <p style="margin:30px 0 0; font-size:11px; color:#9AA79F;">Versao 199 - 16/11/2026</p>
+    <p style="margin:30px 0 0; font-size:11px; color:#9AA79F;">Versao 200 - 16/11/2026</p>
   </div>
 </div>
 
@@ -4034,10 +4046,10 @@ function renderLotes(){
         const linhasEquipPeca = [
           ...(lote.equipamentoIds||[]).map(eqId=>{
             const eq = getEquipamento(eqId);
-            return { nome: eq?eq.nome:"?", itemPedido: (lote.itensPedidoPorEquip||{})[eqId]||"1", descricao: (lote.descricoesPorEquip||{})[eqId]||"-", qtd: (lote.quantidadesPorEquip||{})[eqId]||1, custo: (lote.custosEstimadosPorEquip||{})[eqId] };
+            return { tipo:"eq", id:eqId, nome: eq?eq.nome:"?", itemPedido: (lote.itensPedidoPorEquip||{})[eqId]||"1", descricao: (lote.descricoesPorEquip||{})[eqId]||"-", qtd: (lote.quantidadesPorEquip||{})[eqId]||1, custo: (lote.custosEstimadosPorEquip||{})[eqId] };
           }),
           ...DB.pecasAvulsas.filter(p=>p.loteId===lote.id).map(p=>(
-            { nome: p.nome+" (avulsa)", itemPedido: p.itemPedido||"1", descricao: "-", qtd: p.quantidade||1, custo: p.custoEstimado }
+            { tipo:"peca", id:p.id, nome: p.nome+" (avulsa)", itemPedido: p.itemPedido||"1", descricao: "-", qtd: p.quantidade||1, custo: p.custoEstimado }
           )),
         ];
         if (ultimoPedidoGrupo !== lote.pedidoId) {
@@ -4056,12 +4068,12 @@ function renderLotes(){
         const corStatus = (LOTE_STATUS_COLORS && LOTE_STATUS_COLORS[status]) || "var(--gray)";
         const diasJanela = janelaIni && dataLimite ? diffDays(dataLimite, janelaIni)+1 : null;
         html += `<div class="lote-card" data-linha-lote="${lote.id}" style="border-left-color:${corStatus};">
-          <div class="lote-card-principal lote-clicavel" data-abrir-lote="${lote.id}" title="Clique para abrir os itens deste lote">
+          <div class="lote-card-principal lote-clicavel" data-abrir-lote="${lote.id}" title="Clique para abrir ou minimizar os detalhes deste lote">
             <span class="ordem-badge" title="Ordem de desenvolvimento neste pedido">${fmtOrdem(lote.ordem)}</span>
             <span class="no-lote">Lote ${lote.noLote}</span>
             <span class="equip">${nomesEquipamentosLote(lote)}</span>
             ${pill(status,LOTE_STATUS_COLORS)} ${tagsAtrasoHtml(tipos)} ${lotePausadoAgora(lote)?'<span class="pill" style="background:#455A64;">PAUSADO</span>':''}
-            <span class="ver-itens">Itens &rsaquo;</span>
+            <span class="ver-itens" data-chevron-lote="${lote.id}">${lotesMaxAbertos.has(lote.id)?"&#9662; Minimizar":"&#9656; Abrir"}</span>
             <div class="acoes-cell">
               <button class="acao-icon danger" data-del-lote="${lote.id}" title="Excluir">&#128465;</button>
             </div>
@@ -4072,6 +4084,8 @@ function renderLotes(){
             ${diasJanela!==null?`<span class="muted">${diasJanela} dias de janela</span>`:""}
             <span class="muted">${nItens} item(ns)${prazoLote!==null?" - caminho dos itens "+prazoLote+"d":""}</span>
           </div>
+          <div class="lote-max ${lotesMaxAbertos.has(lote.id)?"":"hidden"}" data-lote-max="${lote.id}">
+          <div style="margin-top:10px;"><button type="button" class="btn btn-sm" data-ir-itens="${lote.id}" title="Abrir a tela Itens do Lote deste lote">Ir para os Itens do Lote &rsaquo;</button></div>
           <div class="lote-controles" style="display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; margin-top:10px; margin-bottom:4px;">
             <label style="font-size:12px; font-weight:600;">Ordem<br><input type="number" min="1" class="inp-ordem-lote" data-lote="${lote.id}" value="${lote.ordem||1}" style="width:70px;"></label>
             <label style="font-size:12px; font-weight:600;">Prazo do lote (dias)<br><input type="number" min="1" class="inp-prazo-lote" data-lote="${lote.id}" value="${dlx.prazoAlvo||prazoManualLote(lote)||""}" ${(pedido&&!pedido.dataEntrada)?"disabled title=\"O pedido ainda nao tem data de entrada\"":""} style="width:110px;"></label>
@@ -4081,10 +4095,18 @@ function renderLotes(){
             ${dlx.inviavelDias>0?`<span style="color:var(--danger); font-weight:700; font-size:12px;">&#9888; Prazo inviavel: faltam ${dlx.inviavelDias} dia(s) (itens precisam de ${prazoLote}d, disponivel ${dlx.prazoAlvo+dlx.diasPausa}d)</span>`:""}
           </div>
           ${htmlPausasLote(lote)}
-          <details class="lote-eqp lote-sub"><summary>Equipamentos e pecas (${linhasEquipPeca.length})</summary>
-          <table style="margin-top:8px;"><tr><th>Equipamento/Peca</th><th>Item Pedido</th><th>Descricao</th><th>Qtd</th><th>Custo Estimado Unitario (R$)</th></tr>
-          ${linhasEquipPeca.map(l=>`<tr><td>${l.nome}</td><td>${l.itemPedido}</td><td>${l.descricao}</td><td>${l.qtd}</td><td>${fmtBRL(l.custo)}</td></tr>`).join("") || '<tr><td colspan="5" class="muted">Nenhum equipamento ou peca cadastrado.</td></tr>'}
-          </table></details>
+          <div class="lote-eqp lote-sub" style="margin-top:10px;"><div style="font-weight:700; font-size:13px;">Equipamentos e pecas (${linhasEquipPeca.length})</div>
+          <table style="margin-top:6px;"><tr><th>Equipamento/Peca</th><th>Item Pedido</th><th>Descricao</th><th>Qtd</th><th>Custo Estimado Unitario (R$)</th><th></th></tr>
+          ${linhasEquipPeca.map(l=>`<tr><td>${l.nome}</td><td>${l.itemPedido}</td><td>${l.descricao}</td><td>${l.qtd}</td><td>${fmtBRL(l.custo)}</td><td><button type="button" class="acao-icon danger" data-edicao data-lote-del-ep="${l.tipo}|${l.id}|${lote.id}" title="Excluir deste lote">&#128465;</button></td></tr>`).join("") || '<tr><td colspan="6" class="muted">Nenhum equipamento ou peca cadastrado.</td></tr>'}
+          </table>
+          <div data-edicao style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:8px;">
+            <select data-lote-add-equip-sel="${lote.id}" style="min-width:200px;"><option value="">- equipamento a adicionar -</option>${equipamentosOrdenados().filter(e=>!(lote.equipamentoIds||[]).includes(e.id)).map(e=>`<option value="${e.id}">${escaparHtmlPerfil(e.nome)}</option>`).join("")}</select>
+            <button type="button" class="btn secondary btn-sm" data-lote-add-equip="${lote.id}">+ Equipamento</button>
+            <span class="muted">ou</span>
+            <input type="text" data-lote-add-peca-nome="${lote.id}" placeholder="Nome da peca/conjunto avulso" style="min-width:200px;">
+            <button type="button" class="btn secondary btn-sm" data-lote-add-peca="${lote.id}">+ Peca/Conjunto avulso</button>
+          </div></div>
+          </div>
         </div>`;
       }
     }
@@ -4102,11 +4124,40 @@ function renderLotes(){
     document.querySelectorAll("[data-abrir-lote]").forEach(el=>{
       el.addEventListener("click", (e)=>{
         if (e.target.closest("button,input,select,label,details,a")) return;
-        irParaLoteKanban(parseInt(el.dataset.abrirLote));
+        const id = parseInt(el.dataset.abrirLote);
+        if (lotesMaxAbertos.has(id)) lotesMaxAbertos.delete(id); else lotesMaxAbertos.add(id);
+        const box = document.querySelector(`[data-lote-max="${id}"]`); if (box) box.classList.toggle("hidden", !lotesMaxAbertos.has(id));
+        const ch = document.querySelector(`[data-chevron-lote="${id}"]`); if (ch) ch.innerHTML = lotesMaxAbertos.has(id) ? "&#9662; Minimizar" : "&#9656; Abrir";
       });
     });
+    document.querySelectorAll("[data-ir-itens]").forEach(b=>b.addEventListener("click", e=>{ e.stopPropagation(); irParaLoteKanban(parseInt(b.dataset.irItens)); }));
 
     const reRender = ()=>{ saveDB(); renderTabelaLotes(); try { popularSelLote(); } catch(e){} };
+    document.querySelectorAll("[data-lote-add-equip]").forEach(b=>b.addEventListener("click", ()=>{
+      const lote = DB.lotes.find(l=>l.id===parseInt(b.dataset.loteAddEquip)); if (!lote) return;
+      const sel = document.querySelector(`[data-lote-add-equip-sel="${lote.id}"]`);
+      const id = parseInt(sel.value); if (!id) { alert("Escolha o equipamento a adicionar."); return; }
+      loteAdicionarEquipamento(lote, id); lotesMaxAbertos.add(lote.id); reRender();
+    }));
+    document.querySelectorAll("[data-lote-add-peca]").forEach(b=>b.addEventListener("click", ()=>{
+      const lote = DB.lotes.find(l=>l.id===parseInt(b.dataset.loteAddPeca)); if (!lote) return;
+      const inp = document.querySelector(`[data-lote-add-peca-nome="${lote.id}"]`);
+      const nome = inp.value.trim(); if (!nome) { alert("Digite o nome da peca/conjunto avulso."); return; }
+      loteAdicionarPeca(lote, nome); lotesMaxAbertos.add(lote.id); reRender();
+    }));
+    document.querySelectorAll("[data-lote-del-ep]").forEach(b=>b.addEventListener("click", ()=>{
+      const [tipo, id, loteId] = b.dataset.loteDelEp.split("|"); const lote = DB.lotes.find(l=>l.id===parseInt(loteId)); if (!lote) return;
+      if (tipo==="eq") {
+        const eq = getEquipamento(parseInt(id));
+        if (!confirm(`Remover '${eq?eq.nome:"?"}' deste Lote? Isso tambem apaga os itens e custos rastreados dele.`)) return;
+        loteRemoverEquipamento(lote, parseInt(id));
+      } else {
+        const pc = DB.pecasAvulsas.find(x=>x.id===parseInt(id));
+        if (!confirm(`Remover a peca '${pc?pc.nome:"?"}'? Isso tambem apaga os itens e custos dela.`)) return;
+        loteRemoverPeca(parseInt(id));
+      }
+      lotesMaxAbertos.add(lote.id); reRender();
+    }));
     document.querySelectorAll(".inp-ordem-lote").forEach(inp=>{
       inp.addEventListener("change", ()=>{
         const lote = DB.lotes.find(l=>l.id===parseInt(inp.dataset.lote)); if (!lote) return;
@@ -4842,6 +4893,51 @@ function renderItensLoteBody(){
   }
 }
 
+
+// ---- Lotes: adicionar/excluir equipamento e peca direto na relacao do lote ----
+const lotesMaxAbertos = new Set();
+function loteAdicionarEquipamento(lote, equipId){
+  const ids = lote.equipamentoIds || [];
+  if (!equipId || ids.includes(equipId)) return false;
+  lote.equipamentoIds = [...ids, equipId];
+  lote.descricoesPorEquip = lote.descricoesPorEquip || {};
+  lote.quantidadesPorEquip = lote.quantidadesPorEquip || {}; lote.quantidadesPorEquip[equipId] = 1;
+  lote.itensPedidoPorEquip = lote.itensPedidoPorEquip || {}; lote.itensPedidoPorEquip[equipId] = "1";
+  const novas = [];
+  for (const it of DB.itens.filter(i=>i.equipamentoId===equipId && i.rastrearPadrao!==false)) {
+    if (DB.itensLote.some(r=>r.loteId===lote.id && r.itemId===it.id)) continue;
+    const nl = {id:DB.seq.itemLote++, loteId:lote.id, itemId:it.id, dataSolicitacao:null, dataReal:null, prazoOverride:null, prerequisitosOverride:null, levantarCusto:true};
+    DB.itensLote.push(nl); novas.push(nl);
+  }
+  limparCacheCalc(); if (novas.length) engCriarTarefasDoPpcp(lote, novas);
+  return true;
+}
+function loteRemoverEquipamento(lote, equipId){
+  const itensDoEquip = DB.itens.filter(i=>i.equipamentoId===equipId).map(i=>i.id);
+  const rowsRemovidos = DB.itensLote.filter(io=>io.loteId===lote.id && itensDoEquip.includes(io.itemId)).map(io=>io.id);
+  engItensLoteRemovidos(rowsRemovidos);
+  DB.custos = DB.custos.filter(c=>!rowsRemovidos.includes(c.itensLoteId));
+  DB.itensLote = DB.itensLote.filter(io=>!(io.loteId===lote.id && itensDoEquip.includes(io.itemId)));
+  lote.equipamentoIds = (lote.equipamentoIds||[]).filter(id=>id!==equipId);
+  for (const k of ["descricoesPorEquip","quantidadesPorEquip","seriesPorEquip","custosEstimadosPorEquip","itensPedidoPorEquip"]) if (lote[k]) delete lote[k][equipId];
+  for (const carga of DB.cargasExpedicao) carga.itens = carga.itens.filter(it=>!(it.loteId===lote.id && it.tipo==="equipamento" && it.refId===equipId));
+  removerDaColecao("checklistInstancias", c=>!(c.loteId===lote.id && c.equipamentoId===equipId));
+  limparCacheCalc();
+}
+function loteAdicionarPeca(lote, nome){
+  const peca = {id: DB.seq.pecaAvulsa++, loteId: lote.id, nome, itemPedido:"1", quantidade:1, custoEstimado:null};
+  DB.pecasAvulsas.push(peca); return peca;
+}
+function loteRemoverPeca(pecaId){
+  const idsItens = DB.itensAvulsos.filter(i=>i.pecaAvulsaId===pecaId).map(i=>i.id);
+  DB.custos = DB.custos.filter(c=>!idsItens.includes(c.itensAvulsoId));
+  DB.prerequisitosAvulsos = DB.prerequisitosAvulsos.filter(p=>!idsItens.includes(p.itemAvulsoId) && !idsItens.includes(p.prereqItemAvulsoId));
+  DB.itensAvulsos = DB.itensAvulsos.filter(i=>i.pecaAvulsaId!==pecaId);
+  DB.pecasAvulsas = DB.pecasAvulsas.filter(p=>p.id!==pecaId);
+  for (const carga of DB.cargasExpedicao) carga.itens = carga.itens.filter(it=>!(it.tipo==="peca" && it.refId===pecaId));
+  limparCacheCalc();
+}
+
 // ---- Estrutura do produto (edicao direta dentro de Itens do Lote) ----
 let estrEdit = null;      // chave da linha em edicao: "eq|itemId|loteId" ou "pc|iaId|loteId"
 let estrAdd = null;       // chave do formulario de adicionar: "eq|equipId|loteId" ou "pc|pecaId|loteId"
@@ -4849,8 +4945,12 @@ function estrNomePrereqEq(ids){ const n = ids.map(id=>{const m=getItem(id); retu
 function estruturaEquipHtml(lote, equipId){
   const catalogo = ordenarItensEquip(DB.itens.filter(i=>i.equipamentoId===equipId));
   const mapa = getItensLoteByLote(lote.id);
-  let h = '<div class="estr-box"><div class="estr-titulo">Estrutura do produto <span class="muted">(pre-requisitos, dias e rastreio)</span></div><table class="estr-tab"><tr><th>Item</th><th>Pre-requisitos</th><th>Dias</th><th>Rastrear</th><th>Custo</th><th></th></tr>';
-  for (const it of catalogo) {
+  const eqNome = (getEquipamento(equipId)||{}).nome || "?";
+  const kEstr = lote.id+"|estr-eq-"+equipId;
+  const abertoEstr = itensDetAbertos.has(kEstr) || (estrAdd==="eq|"+equipId+"|"+lote.id) || (estrEdit && catalogo.some(it=>estrEdit==="eq|"+it.id+"|"+lote.id));
+  let h = `<details class="estr-det" data-key="${kEstr}" ${abertoEstr?"open":""}><summary>Estrutura de produto de ${escaparHtmlPerfil(eqNome)}<span class="estr-resumo">${catalogo.length} item(ns) &middot; clique para ${abertoEstr?"minimizar":"maximizar"}</span></summary><div class="estr-box"><table class="estr-tab"><tr><th>Item</th><th>Pre-requisitos</th><th>Dias</th><th>Rastrear</th><th>Custo</th><th></th></tr>`;
+  for (const [ix, it] of catalogo.entries()) {
+    const arv = `<span class="estr-arv">${ix===catalogo.length-1?"&#9492;&#9472;":"&#9500;&#9472;"}</span>`;
     const row = mapa.get(it.id);
     const key = "eq|"+it.id+"|"+lote.id;
     const prazo = row && row.prazoOverride!=null ? row.prazoOverride : it.prazoDias;
@@ -4858,47 +4958,50 @@ function estruturaEquipHtml(lote, equipId){
     const custo = row ? row.levantarCusto!==false : true;
     if (estrEdit===key) {
       const outros = catalogo.filter(o=>o.id!==it.id);
-      h += `<tr class="estr-edit" data-estr-row="${key}"><td>${it.nome}</td>
+      h += `<tr class="estr-edit" data-estr-row="${key}"><td>${arv}${it.nome}</td>
         <td><div class="checklist" style="max-height:90px;min-width:220px;font-size:12px;">${outros.map(o=>`<label><input type="checkbox" class="estr-prereq" value="${o.id}" ${prereqs.includes(o.id)?"checked":""}> ${o.nome}</label>`).join("")||'<span class="muted">(nenhum outro item)</span>'}</div></td>
         <td><input type="number" class="estr-dias" min="0" step="0.5" value="${prazo}" style="width:64px;"></td>
         <td style="text-align:center;"><input type="checkbox" class="estr-rastrear" ${row?"checked":""}></td>
         <td style="text-align:center;"><input type="checkbox" class="estr-custo" ${custo?"checked":""}></td>
         <td style="white-space:nowrap;"><button type="button" class="acao-icon" data-estr-salvar="${key}" title="Salvar">&#10003;</button><button type="button" class="acao-icon danger" data-estr-cancelar title="Cancelar">&#10005;</button></td></tr>`;
     } else {
-      h += `<tr${row?"":' style="opacity:.55;"'}><td>${it.nome}</td><td style="font-size:12px;">${estrNomePrereqEq(prereqs)}</td><td>${prazo}d${row&&row.prazoOverride!=null?' <span class="muted">(ajust.)</span>':''}</td><td style="text-align:center;">${row?"Sim":"Nao"}</td><td style="text-align:center;">${row?(custo?"Sim":"Nao"):"-"}</td><td><button type="button" class="acao-icon" data-edicao data-estr-editar="${key}" title="Editar dias, rastrear, pre-requisitos">&#9998;</button></td></tr>`;
+      h += `<tr${row?"":' style="opacity:.55;"'}><td>${arv}${it.nome}</td><td style="font-size:12px;">${estrNomePrereqEq(prereqs)}</td><td>${prazo}d${row&&row.prazoOverride!=null?' <span class="muted">(ajust.)</span>':''}</td><td style="text-align:center;">${row?"Sim":"Nao"}</td><td style="text-align:center;">${row?(custo?"Sim":"Nao"):"-"}</td><td><button type="button" class="acao-icon" data-edicao data-estr-editar="${key}" title="Editar dias, rastrear, pre-requisitos">&#9998;</button></td></tr>`;
     }
   }
   h += '</table>';
   const kAdd = "eq|"+equipId+"|"+lote.id;
   if (estrAdd===kAdd) h += `<div class="estr-add" data-estr-addbox="${kAdd}"><input type="text" class="estr-novo-nome" placeholder="Nome do item"> <input type="number" class="estr-novo-dias" min="0" step="0.5" value="1" style="width:64px;" title="Dias"> <button type="button" class="btn btn-sm" data-estr-add-ok="${kAdd}">Adicionar</button> <button type="button" class="btn btn-sm secondary" data-estr-cancelar>Cancelar</button> <span class="muted" style="font-size:11px;">O item passa a existir no cadastro deste equipamento (vale para todos os lotes).</span></div>`;
   else h += `<div style="margin-top:6px;"><button type="button" class="btn btn-sm secondary" data-edicao data-estr-add="${kAdd}">+ Adicionar item</button></div>`;
-  return h + '</div>';
+  return h + '</div></details>';
 }
 function estruturaPecaHtml(lote, peca){
   const todos = DB.itensAvulsos.filter(i=>i.pecaAvulsaId===peca.id);
-  let h = '<div class="estr-box"><div class="estr-titulo">Estrutura do produto <span class="muted">(pre-requisitos, dias e rastreio)</span></div><table class="estr-tab"><tr><th>Item</th><th>Pre-requisitos</th><th>Dias</th><th>Rastrear</th><th>Custo</th><th></th></tr>';
-  for (const ia of todos) {
+  const kEstr = lote.id+"|estr-pc-"+peca.id;
+  const abertoEstr = itensDetAbertos.has(kEstr) || (estrAdd==="pc|"+peca.id+"|"+lote.id) || (estrEdit && todos.some(ia=>estrEdit==="pc|"+ia.id+"|"+lote.id));
+  let h = `<details class="estr-det" data-key="${kEstr}" ${abertoEstr?"open":""}><summary>Estrutura de produto de ${escaparHtmlPerfil(peca.nome)}<span class="estr-resumo">${todos.length} item(ns) &middot; clique para ${abertoEstr?"minimizar":"maximizar"}</span></summary><div class="estr-box"><table class="estr-tab"><tr><th>Item</th><th>Pre-requisitos</th><th>Dias</th><th>Rastrear</th><th>Custo</th><th></th></tr>`;
+  for (const [ix, ia] of todos.entries()) {
+    const arv = `<span class="estr-arv">${ix===todos.length-1?"&#9492;&#9472;":"&#9500;&#9472;"}</span>`;
     const key = "pc|"+ia.id+"|"+lote.id;
     const prereqs = getPrerequisitosAvulso(ia.id);
     const nomes = prereqs.map(id=>{const o=DB.itensAvulsos.find(x=>x.id===id); return o?o.itemNome:null;}).filter(Boolean);
     const rast = ia.rastrear!==false;
     if (estrEdit===key) {
       const outros = todos.filter(o=>o.id!==ia.id);
-      h += `<tr class="estr-edit" data-estr-row="${key}"><td><input type="text" class="estr-nome" value="${ia.itemNome.replace(/"/g,"&quot;")}" style="min-width:120px;"></td>
+      h += `<tr class="estr-edit" data-estr-row="${key}"><td>${arv}<input type="text" class="estr-nome" value="${ia.itemNome.replace(/"/g,"&quot;")}" style="min-width:120px;"></td>
         <td><div class="checklist" style="max-height:90px;min-width:220px;font-size:12px;">${outros.map(o=>`<label><input type="checkbox" class="estr-prereq" value="${o.id}" ${prereqs.includes(o.id)?"checked":""}> ${o.itemNome}</label>`).join("")||'<span class="muted">(nenhum outro item)</span>'}</div></td>
         <td><input type="number" class="estr-dias" min="0" step="0.5" value="${ia.prazoDias}" style="width:64px;"></td>
         <td style="text-align:center;"><input type="checkbox" class="estr-rastrear" ${rast?"checked":""}></td>
         <td style="text-align:center;"><input type="checkbox" class="estr-custo" ${ia.levantarCusto!==false?"checked":""}></td>
         <td style="white-space:nowrap;"><button type="button" class="acao-icon" data-estr-salvar="${key}" title="Salvar">&#10003;</button><button type="button" class="acao-icon danger" data-estr-cancelar title="Cancelar">&#10005;</button></td></tr>`;
     } else {
-      h += `<tr${rast?"":' style="opacity:.55;"'}><td>${ia.itemNome}</td><td style="font-size:12px;">${nomes.length?nomes.join(", "):'<span class="muted">nenhum</span>'}</td><td>${ia.prazoDias}d</td><td style="text-align:center;">${rast?"Sim":"Nao"}</td><td style="text-align:center;">${rast?(ia.levantarCusto!==false?"Sim":"Nao"):"-"}</td><td><button type="button" class="acao-icon" data-edicao data-estr-editar="${key}" title="Editar nome, dias, rastrear, pre-requisitos">&#9998;</button></td></tr>`;
+      h += `<tr${rast?"":' style="opacity:.55;"'}><td>${arv}${ia.itemNome}</td><td style="font-size:12px;">${nomes.length?nomes.join(", "):'<span class="muted">nenhum</span>'}</td><td>${ia.prazoDias}d</td><td style="text-align:center;">${rast?"Sim":"Nao"}</td><td style="text-align:center;">${rast?(ia.levantarCusto!==false?"Sim":"Nao"):"-"}</td><td><button type="button" class="acao-icon" data-edicao data-estr-editar="${key}" title="Editar nome, dias, rastrear, pre-requisitos">&#9998;</button></td></tr>`;
     }
   }
   h += '</table>';
   const kAdd = "pc|"+peca.id+"|"+lote.id;
   if (estrAdd===kAdd) h += `<div class="estr-add" data-estr-addbox="${kAdd}"><input type="text" class="estr-novo-nome" placeholder="Nome do item"> <input type="number" class="estr-novo-dias" min="0" step="0.5" value="1" style="width:64px;" title="Dias"> <button type="button" class="btn btn-sm" data-estr-add-ok="${kAdd}">Adicionar</button> <button type="button" class="btn btn-sm secondary" data-estr-cancelar>Cancelar</button></div>`;
   else h += `<div style="margin-top:6px;"><button type="button" class="btn btn-sm secondary" data-edicao data-estr-add="${kAdd}">+ Adicionar item</button></div>`;
-  return h + '</div>';
+  return h + '</div></details>';
 }
 function estrSalvar(key){
   const [tipo, id, loteIdS] = key.split("|"); const loteId = parseInt(loteIdS); const lote = DB.lotes.find(l=>l.id===loteId);
@@ -4949,6 +5052,7 @@ function estrAdicionar(key){
   estrAdd = null; limparCacheCalc(); saveDB(); renderItensLoteBody();
 }
 function ligarEstrutura(raiz){
+  raiz.querySelectorAll("details.estr-det").forEach(d=>d.addEventListener("toggle", ()=>{ if (d.open) itensDetAbertos.add(d.dataset.key); else itensDetAbertos.delete(d.dataset.key); const r = d.querySelector(".estr-resumo"); if (r) r.innerHTML = r.innerHTML.replace(/clique para \w+/, "clique para "+(d.open?"minimizar":"maximizar")); }));
   raiz.querySelectorAll("[data-estr-editar]").forEach(b=>b.addEventListener("click", ev=>{ev.preventDefault(); estrEdit=b.dataset.estrEditar; estrAdd=null; renderItensLoteBody();}));
   raiz.querySelectorAll("[data-estr-cancelar]").forEach(b=>b.addEventListener("click", ev=>{ev.preventDefault(); estrEdit=null; estrAdd=null; renderItensLoteBody();}));
   raiz.querySelectorAll("[data-estr-salvar]").forEach(b=>b.addEventListener("click", ev=>{ev.preventDefault(); estrSalvar(b.dataset.estrSalvar);}));
@@ -5014,16 +5118,17 @@ function renderItensUmLote(lote, resumoEl, lista, unico){
       const idsOrdenados = aplicarOrdemManual(ordenarItensPorPrereq(lote.id, porEquip.get(equipId)), id=>itensMap.get(id));
       const kEq = lote.id+"|eq-"+equipId;
       const nConcEq = idsOrdenados.filter(id=>itensMap.get(id).dataReal).length;
-      html += `<details class="itens-det" data-key="${kEq}" ${(itensDetAbertos.has(kEq)||filtroEquipPeca===("eq-"+equipId))?"open":""}><summary class="itens-grupo-titulo"><small>Equipamento</small>${eq?eq.nome:"?"}<button type="button" class="acao-icon btn-edit-grupo" data-edicao data-edit-grupo="eq|${equipId}|${lote.id}" title="Editar">&#9998;</button><span class="itens-cont">${nConcEq}/${idsOrdenados.length} itens concluidos</span></summary><div class="tabela-itens-lote-wrap"><table class="tabela-itens-lote">`+
-        ITENS_CABECALHO;
+      const alG = [];
+      let tab = '<div class="itens-sub-rotulo">Acompanhamento dos itens</div><div class="tabela-itens-lote-wrap"><table class="tabela-itens-lote">' + ITENS_CABECALHO;
       for (const itemId of idsOrdenados) {
         const row = itensMap.get(itemId);
         const meta = getItem(itemId);
         const r = calcularStatusItem(lote, row, alertaDias);
-        html += linhaItemLote(lote, row, r, "item", meta.nome, `prazo ${row.prazoOverride!=null?row.prazoOverride+"d (ajustado)":meta.prazoDias+"d"} - acumulado ${r.prazoAcumulado}d`);
-        if (r.alertaPrerequisito) alertas.push(`${eq?eq.nome:"?"} - ${meta.nome}: ${r.alertaPrerequisito}`);
+        tab += linhaItemLote(lote, row, r, "item", meta.nome, `prazo ${row.prazoOverride!=null?row.prazoOverride+"d (ajustado)":meta.prazoDias+"d"} - acumulado ${r.prazoAcumulado}d`);
+        if (r.alertaPrerequisito) alG.push(`${meta.nome}: ${r.alertaPrerequisito}`);
       }
-      html += "</table>" + (idsOrdenados.some(id=>itensMap.get(id).ordemManual) ? `<div style="margin-top:6px;"><button type="button" class="btn secondary btn-sm" data-edicao data-reset-ordem="eq|${equipId}|${lote.id}">Restaurar ordem padrao</button></div>` : "") + estruturaEquipHtml(lote, equipId) + "</div></details>";
+      tab += "</table></div>" + (idsOrdenados.some(id=>itensMap.get(id).ordemManual) ? `<div style="margin-top:6px;"><button type="button" class="btn secondary btn-sm" data-edicao data-reset-ordem="eq|${equipId}|${lote.id}">Restaurar ordem padrao</button></div>` : "") + estruturaEquipHtml(lote, equipId);
+      html += `<details class="itens-det" data-key="${kEq}" ${(itensDetAbertos.has(kEq)||filtroEquipPeca===("eq-"+equipId))?"open":""}><summary class="itens-grupo-titulo"><small>Equipamento</small>${eq?eq.nome:"?"}<button type="button" class="acao-icon btn-edit-grupo" data-edicao data-edit-grupo="eq|${equipId}|${lote.id}" title="Editar">&#9998;</button><span class="itens-cont">${nConcEq}/${idsOrdenados.length} itens concluidos</span>${alG.length?`<div class="alerta-min">&#9888; ${alG.join(" &bull; ")}</div>`:""}</summary>${alG.length?`<div class="warn-box">&#9888; ${alG.join("<br>&#9888; ")}</div>`:""}`+tab+"</details>";
     }
     html += "</div>";
   }
@@ -5034,18 +5139,19 @@ function renderItensUmLote(lote, resumoEl, lista, unico){
       const itensDaPeca = aplicarOrdemManual(ordenarItensAvulsos(DB.itensAvulsos.filter(i=>i.pecaAvulsaId===peca.id && i.rastrear!==false)), x=>x);
       const kPc = lote.id+"|peca-"+peca.id;
       const nConcPc = itensDaPeca.filter(i=>i.dataReal).length;
-      html += `<details class="itens-det" data-key="${kPc}" ${(itensDetAbertos.has(kPc)||filtroEquipPeca===("peca-"+peca.id))?"open":""}><summary class="itens-grupo-titulo peca"><small>Peca/Conjunto Avulso</small>${peca.nome}<button type="button" class="acao-icon btn-edit-grupo" data-edicao data-edit-grupo="peca|${peca.id}|${lote.id}" title="Editar">&#9998;</button><span class="itens-cont">${nConcPc}/${itensDaPeca.length} itens concluidos</span></summary><div class="tabela-itens-lote-wrap"><table class="tabela-itens-lote">`+
-        ITENS_CABECALHO;
+      const alP = [];
+      let tabP = '<div class="itens-sub-rotulo">Acompanhamento dos itens</div><div class="tabela-itens-lote-wrap"><table class="tabela-itens-lote">' + ITENS_CABECALHO;
       for (const ia of itensDaPeca) {
         const r = calcularStatusItemAvulso(lote, ia, alertaDias);
-        html += linhaItemLote(lote, ia, r, "avulso", ia.itemNome, `prazo ${ia.prazoDias}d - acumulado ${r.prazoAcumulado}d`);
+        tabP += linhaItemLote(lote, ia, r, "avulso", ia.itemNome, `prazo ${ia.prazoDias}d - acumulado ${r.prazoAcumulado}d`);
+        if (r.alertaPrerequisito) alP.push(`${ia.itemNome}: ${r.alertaPrerequisito}`);
       }
-      html += "</table>" + (itensDaPeca.some(x=>x.ordemManual) ? `<div style="margin-top:6px;"><button type="button" class="btn secondary btn-sm" data-edicao data-reset-ordem="peca|${peca.id}|${lote.id}">Restaurar ordem padrao</button></div>` : "") + estruturaPecaHtml(lote, peca) + "</div></details>";
+      tabP += "</table></div>" + (itensDaPeca.some(x=>x.ordemManual) ? `<div style="margin-top:6px;"><button type="button" class="btn secondary btn-sm" data-edicao data-reset-ordem="peca|${peca.id}|${lote.id}">Restaurar ordem padrao</button></div>` : "") + estruturaPecaHtml(lote, peca);
+      html += `<details class="itens-det" data-key="${kPc}" ${(itensDetAbertos.has(kPc)||filtroEquipPeca===("peca-"+peca.id))?"open":""}><summary class="itens-grupo-titulo peca"><small>Peca/Conjunto Avulso</small>${peca.nome}<button type="button" class="acao-icon btn-edit-grupo" data-edicao data-edit-grupo="peca|${peca.id}|${lote.id}" title="Editar">&#9998;</button><span class="itens-cont">${nConcPc}/${itensDaPeca.length} itens concluidos</span>${alP.length?`<div class="alerta-min">&#9888; ${alP.join(" &bull; ")}</div>`:""}</summary>${alP.length?`<div class="warn-box">&#9888; ${alP.join("<br>&#9888; ")}</div>`:""}`+tabP+"</details>";
     }
     html += "</div>";
   }
 
-  if (alertas.length) html += `<div class="warn-box">&#9888; ${alertas.join("<br>&#9888; ")}</div>`;
 
   lista.innerHTML = html;
   ligarArrastarItens(lista);
