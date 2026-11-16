@@ -188,6 +188,11 @@
   .resp-tag { display:inline-block; font-size:10px; font-weight:700; padding:1px 8px; border-radius:999px; }
   .resp-tag.eng { background:#E3F0FA; color:#1B5E8C; } .resp-tag.prod { background:#E3F1E7; color:#14462E; } .resp-tag.ppcp { background:#F6EEDB; color:#7A5A12; }
   .tabela-itens-lote td.auto { background:#F7F9F6; }
+  .estr-box { margin-top:12px; padding:8px 10px; border:1px dashed var(--border,#cfd8cf); border-radius:8px; background:#FAFBF9; }
+  .estr-titulo { font-size:12px; font-weight:700; color:var(--text,#2c3a2c); margin-bottom:4px; }
+  .estr-tab { font-size:12px; width:100%; }
+  .estr-tab th, .estr-tab td { padding:3px 6px; }
+  .estr-add { margin-top:6px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
   .btn-edit-grupo { margin-left:10px; font-size:11px !important; padding:2px 8px !important; width:auto !important; height:auto !important; }
   .drag-h { display:inline-block; cursor:grab; touch-action:none; user-select:none; color:var(--gray); font-size:17px; line-height:1; padding:2px 6px 2px 0; vertical-align:middle; }
   .drag-h:hover { color:var(--primary-dark); }
@@ -458,7 +463,7 @@
     </form>
     <div style="text-align:center; margin-top:8px;"><a href="#" id="loginEsqueciSenhaLink" style="font-size:12px; color:#8A8F87;">Esqueci minha senha</a></div>
     <div id="loginMsg" style="margin-top:10px; font-size:12.5px; min-height:18px;"></div>
-    <div style="margin-top:8px; font-size:10.5px; color:#9AA79F; text-align:center;">Versao 196 - 11/11/2026</div>
+    <div style="margin-top:8px; font-size:10.5px; color:#9AA79F; text-align:center;">Versao 198 - 16/11/2026</div>
     <div id="loginOfflineWrap" class="hidden" style="margin-top:6px;">
       <button id="loginOfflineBtn" style="width:100%; padding:8px; background:transparent; color:#8A8F87; border:1px solid #E1E6DE; border-radius:6px; font-size:12.5px; cursor:pointer;">Continuar sem conexao (usa os dados salvos neste navegador)</button>
     </div>
@@ -496,7 +501,7 @@
     <div style="height:3px; width:60px; background:#91C53E; border-radius:2px; margin-bottom:34px;"></div>
     <div id="painelPastasGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(172px, 1fr)); gap:14px;"></div>
     <div id="painelMinhasAtividades" style="margin-top:28px;"></div>
-    <p style="margin:30px 0 0; font-size:11px; color:#9AA79F;">Versao 196 - 11/11/2026</p>
+    <p style="margin:30px 0 0; font-size:11px; color:#9AA79F;">Versao 198 - 16/11/2026</p>
   </div>
 </div>
 
@@ -1317,6 +1322,7 @@
             <div class="field"><label class="field-label">Data de Entrada</label><input type="text" id="pedDataEntrada"></div>
             <div class="field"><label class="field-label">Prazo do Pedido (dias)</label><input type="number" id="pedPrazo" min="1" value="45"></div>
           </div>
+          <div class="field" style="max-width:240px;"><label class="field-label">Rede</label><select id="pedRede"></select></div>
           <div class="field" style="max-width:240px;"><label class="field-label">Limite de entrega (data)</label><input type="text" id="pedLimite"><div class="muted" style="font-size:11px;">Alterando o prazo ou a data, o outro e ajustado.</div></div>
           <div class="field" style="max-width:420px;">
             <label class="field-label">Cor</label>
@@ -1414,9 +1420,9 @@
     <div style="font-weight:700; margin-bottom:6px; color:var(--primary-dark);">Como ler as colunas</div>
     <div style="font-size:13px;"><strong>Solicitar ate</strong> <span class="muted">= prazo maximo para pedir o item sem atrasar o lote.</span></div>
     <div style="font-size:13px;"><strong>Solicitado em</strong> <span class="muted">= quando o PPCP pediu o item (voce preenche).</span></div>
-    <div style="font-size:13px;"><strong>Inicio</strong> <span class="muted">= so existe em Desenvolvimento Engenharia, Fabricacao e Montagem. Vem sozinho: da atividade na Engenharia ou do que o gestor da Producao preenche.</span></div>
+    <div style="font-size:13px;"><strong>Inicio</strong> <span class="muted">= so existe em Desenvolvimento Engenharia, Fabricacao e Montagem. Vem sozinho (atividade na Engenharia ou o que o gestor da Producao preenche), mas editor e gestor do PPCP tambem podem preencher a mao. Se a Engenharia ja tiver iniciado a atividade, a data dela prevalece.</span></div>
     <div style="font-size:13px;"><strong>Entrega prevista</strong> <span class="muted">= chegada estimada (inicio ou solicitacao + prazo).</span></div>
-    <div style="font-size:13px;"><strong>Entrega real</strong> <span class="muted">= quando o item ficou pronto. Nos itens da Engenharia, Fabricacao e Montagem vem sozinho; nos demais, voce preenche.</span></div>
+    <div style="font-size:13px;"><strong>Entrega real</strong> <span class="muted">= quando o item ficou pronto. Nos itens da Engenharia, Fabricacao e Montagem vem sozinho (e pode ser preenchido a mao por editor/gestor); nos demais, voce preenche.</span></div>
     <div style="margin-top:8px; font-size:12px;"><span class="resp-tag eng">Engenharia</span> <span class="resp-tag prod">Producao</span> <span class="resp-tag ppcp">PPCP</span> <span class="muted">= quem preenche as datas do item.</span></div>
   </div>
     </section>
@@ -2784,6 +2790,22 @@ function moverLoteParaOrdem(lote, novaOrdem){
   outros.splice(pos-1, 0, lote);
   outros.forEach((l,i)=>{ l.ordem = i+1; });
 }
+// ---- Ordem x limite de entrega: lote com limite maior precisa vir depois
+function limiteDoLoteParaOrdem(l){ try { const d = calcularDataLimiteLote(l).dataLimite; return d ? d.getTime() : null; } catch(e) { return null; } }
+// lista = lotes na ordem proposta; so os ativos e com limite entram na checagem. Devolve {antes, depois} do primeiro par fora de ordem, ou null
+function violacaoOrdemLimite(lista){
+  const ativos = lista.filter(l=>!loteEstaEncerrado(l)).map(l=>({ l, t: limiteDoLoteParaOrdem(l) })).filter(x=>x.t!==null);
+  for (let i=0;i<ativos.length;i++) for (let j=i+1;j<ativos.length;j++) if (ativos[i].t > ativos[j].t) return { antes: ativos[i].l, depois: ativos[j].l };
+  return null;
+}
+function ordenarPedidoPorLimite(pedidoId){
+  const todos = lotesDoPedidoOrdenados(pedidoId);
+  const ativos = todos.filter(l=>!loteEstaEncerrado(l));
+  const slots = ativos.map(l=>l.ordem||0).sort((a,b)=>a-b);
+  const ord = [...ativos].sort((a,b)=>{ const ta = limiteDoLoteParaOrdem(a), tb = limiteDoLoteParaOrdem(b); return ((ta===null?1e15:ta)-(tb===null?1e15:tb)) || ((a.ordem||1e9)-(b.ordem||1e9)); });
+  ord.forEach((l,i)=>{ l.ordem = slots[i]; });
+  compactarOrdemLotes(pedidoId);
+}
 function proximaOrdemLote(pedidoId){
   return DB.lotes.filter(l=>l.pedidoId===pedidoId).reduce((m,l)=>Math.max(m,l.ordem||0),0) + 1;
 }
@@ -3351,6 +3373,8 @@ function renderTabelaPedidosFinalizados(){
   }).join("");
 }
 
+const REDES_PEDIDO = ["Monofasico 110V","Monofasico 220V","Bifasica 110V","Bifasica 220V","Trifasica 220V","Trifasica 380V","Trifasica 440V"];
+function opcoesRedeHtml(sel){ return '<option value="">- selecione -</option>' + REDES_PEDIDO.map(r=>`<option value="${r}" ${r===sel?"selected":""}>${r}</option>`).join(""); }
 function renderPedidos(){
   const pedDataEntradaEl = document.getElementById("pedDataEntrada");
   ensureDateMask(pedDataEntradaEl);
@@ -3406,6 +3430,7 @@ function renderPedidos(){
     input.value = "";
   };
 
+  document.getElementById("pedRede").innerHTML = opcoesRedeHtml("");
   document.getElementById("criarPedidoBtn").onclick = () => {
     const noPedido = parseInt(document.getElementById("pedNoPedido").value);
     const msgEl = document.getElementById("criarPedidoMsg");
@@ -3419,6 +3444,7 @@ function renderPedidos(){
       dataEntrada: getDateValue(document.getElementById("pedDataEntrada")),
       prazoPedido: parseInt(document.getElementById("pedPrazo").value) || null,
       cor: document.getElementById("pedCor").value || null,
+      rede: document.getElementById("pedRede").value || null,
     };
     DB.pedidos.push(pedido);
     logAcompanhamento("adicionado","Pedido",`Pedido ${noPedido} adicionado${pedido.cliente?" ("+pedido.cliente+")":""}.`, pedido.id);
@@ -3426,6 +3452,7 @@ function renderPedidos(){
     msgEl.innerHTML = `<span style="color:var(--ok)">Pedido ${noPedido} criado!</span>`;
     document.getElementById("pedNoPedido").value = "";
     document.getElementById("pedCliente").value = "";
+    document.getElementById("pedRede").value = "";
     renderPedidos();
   };
 
@@ -3435,7 +3462,7 @@ function renderPedidos(){
   function renderTabelaPedidos(){
     const pedidosAtivos = DB.pedidos.filter(p=>!pedidoEstaEncerrado(p));
     if (!pedidosAtivos.length) { document.getElementById("tabelaPedidos").innerHTML = '<p class="muted">Nenhum pedido cadastrado ainda.</p>'; return; }
-    let html = "<table><tr><th>No Pedido</th><th>Cliente</th><th>Data de Entrada</th><th>Prazo (dias)</th><th>Limite de entrega</th><th>Cor</th><th>Lotes Ativos</th><th>Lotes Encerrados</th><th>Acoes</th></tr>";
+    let html = "<table><tr><th>No Pedido</th><th>Cliente</th><th>Data de Entrada</th><th>Prazo (dias)</th><th>Limite de entrega</th><th>Rede</th><th>Cor</th><th>Lotes Ativos</th><th>Lotes Encerrados</th><th>Acoes</th></tr>";
     for (const p of pedidosAtivos) {
       const lotesDoPed = DB.lotes.filter(l=>l.pedidoId===p.id); const nAtivos = lotesDoPed.filter(l=>!loteEstaEncerrado(l)).length; const nEnc = lotesDoPed.length - nAtivos;
       if (p.id === pedidoEditandoInline) {
@@ -3445,13 +3472,14 @@ function renderPedidos(){
           `<td><input type="text" class="date-mask" data-pf="dataEntrada" data-iso-inicial="${p.dataEntrada||""}"></td>`+
           `<td><input type="number" min="1" data-pf="prazoPedido" value="${p.prazoPedido||""}" style="width:70px;"></td>`+
           `<td><input type="text" data-pf="limiteEntrega" style="width:110px;"></td>`+
+          `<td><select data-pf="rede">${opcoesRedeHtml(p.rede)}</select></td>`+
           `<td><select data-pf="cor">${DB.cores.map(c=>`<option ${c===p.cor?"selected":""}>${c}</option>`).join("")}</select></td>`+
           `<td>${nAtivos}</td><td>${nEnc}</td>`+
           `<td><div class="acoes-lote"><button class="acao-icon" data-save-pedido="${p.id}" title="Salvar">&#10003;</button>`+
           `<button class="acao-icon danger" data-cancel-pedido="${p.id}" title="Cancelar">&#10005;</button></div></td></tr>`;
       } else {
         const menuAberto = pedidoMenuAberto === p.id;
-        html += `<tr><td>${p.noPedido}</td><td>${p.cliente||"-"}</td><td>${p.dataEntrada?fmtBR(parseDate(p.dataEntrada)):"-"}</td><td>${p.prazoPedido||"-"}</td><td>${(p.dataEntrada&&p.prazoPedido)?fmtBR(addPrazo(parseDate(p.dataEntrada),p.prazoPedido)):"-"}</td><td>${p.cor||"-"}</td><td>${nAtivos}</td><td>${nEnc}</td>`+
+        html += `<tr><td>${p.noPedido}</td><td>${p.cliente||"-"}</td><td>${p.dataEntrada?fmtBR(parseDate(p.dataEntrada)):"-"}</td><td>${p.prazoPedido||"-"}</td><td>${(p.dataEntrada&&p.prazoPedido)?fmtBR(addPrazo(parseDate(p.dataEntrada),p.prazoPedido)):"-"}</td><td>${p.rede||"-"}</td><td>${p.cor||"-"}</td><td>${nAtivos}</td><td>${nEnc}</td>`+
                 `<td class="acoes-cell"><button class="acao-icon" data-toggle-menu-pedido="${p.id}" title="Opcoes">&#9998;</button>`+
                 `<div class="menu-lote ${menuAberto?"":"hidden"}"><button data-edit-pedido="${p.id}">Editar</button><button class="danger" data-del-pedido="${p.id}">Excluir</button></div></td></tr>`;
       }
@@ -3512,6 +3540,7 @@ function renderPedidos(){
         p.dataEntrada = getDateValue(linha.querySelector('[data-pf="dataEntrada"]'));
         p.prazoPedido = parseInt(linha.querySelector('[data-pf="prazoPedido"]').value) || null;
         p.cor = linha.querySelector('[data-pf="cor"]').value || null;
+        p.rede = linha.querySelector('[data-pf="rede"]').value || null;
         saveDB();
         pedidoEditandoInline = null;
         renderTabelaPedidos();
@@ -4047,6 +4076,7 @@ function renderLotes(){
             <label style="font-size:12px; font-weight:600;">Ordem<br><input type="number" min="1" class="inp-ordem-lote" data-lote="${lote.id}" value="${lote.ordem||1}" style="width:70px;"></label>
             <label style="font-size:12px; font-weight:600;">Prazo do lote (dias)<br><input type="number" min="1" class="inp-prazo-lote" data-lote="${lote.id}" value="${dlx.prazoAlvo||prazoManualLote(lote)||""}" ${(pedido&&!pedido.dataEntrada)?"disabled title=\"O pedido ainda nao tem data de entrada\"":""} style="width:110px;"></label>
             <label style="font-size:12px; font-weight:600;">Limite de entrega (data)<br><input type="text" class="inp-limite-lote" data-lote="${lote.id}" data-iso-inicial="${dlx.dataLimiteOriginal?fmtISO(dlx.dataLimiteOriginal):""}" ${pedido&&!pedido.dataEntrada?"disabled":""} style="width:115px;"></label>
+            ${(!loteEstaEncerrado(lote) && violacaoOrdemLimite(lotesDoPedidoOrdenados(lote.pedidoId)) && lotesDoPedidoOrdenados(lote.pedidoId).filter(x=>!loteEstaEncerrado(x)).some(x=>x.id!==lote.id && ((x.ordem<lote.ordem && limiteDoLoteParaOrdem(x)>limiteDoLoteParaOrdem(lote) && limiteDoLoteParaOrdem(lote)!==null) || (x.ordem>lote.ordem && limiteDoLoteParaOrdem(x)!==null && limiteDoLoteParaOrdem(x)<limiteDoLoteParaOrdem(lote)))))?`<span style="color:var(--danger); font-weight:700; font-size:12px;">&#9888; Ordem fora do limite de entrega</span>`:""}
             ${todosItensConcluidos(lote)?`<button class="btn" data-encerrar-lote="${lote.id}" style="background:var(--ok); color:#fff;">Encerrar lote</button>`:""}
             ${dlx.inviavelDias>0?`<span style="color:var(--danger); font-weight:700; font-size:12px;">&#9888; Prazo inviavel: faltam ${dlx.inviavelDias} dia(s) (itens precisam de ${prazoLote}d, disponivel ${dlx.prazoAlvo+dlx.diasPausa}d)</span>`:""}
           </div>
@@ -4058,7 +4088,13 @@ function renderLotes(){
         </div>`;
       }
     }
-    document.getElementById("tabelaLotesCompleta").innerHTML = '<div class="lotes-inner">'+html+'</div>';
+    document.getElementById("tabelaLotesCompleta").innerHTML = '<div data-edicao style="margin-bottom:8px;"><button type="button" class="btn secondary btn-sm" id="btnOrdenarPorLimite" title="Reorganiza a ordem de fabricacao pelo limite de entrega (do mais cedo para o mais tarde)">&#8645; Ordenar por limite de entrega</button></div><div class="lotes-inner">'+html+'</div>';
+    document.getElementById("btnOrdenarPorLimite").onclick = ()=>{
+      const pids = [...new Set(lotesFiltrados.map(l=>l.pedidoId).filter(x=>x!=null))];
+      if (!confirm("Reorganizar a ordem dos lotes ativos pelo limite de entrega (mais cedo primeiro) em "+pids.length+" pedido(s)?")) return;
+      pids.forEach(ordenarPedidoPorLimite);
+      reRender();
+    };
 
     document.querySelectorAll("[data-del-lote]").forEach(btn=>{
       btn.addEventListener("click", (e)=>{ e.stopPropagation(); excluirLote(parseInt(btn.dataset.delLote)); });
@@ -4074,6 +4110,15 @@ function renderLotes(){
     document.querySelectorAll(".inp-ordem-lote").forEach(inp=>{
       inp.addEventListener("change", ()=>{
         const lote = DB.lotes.find(l=>l.id===parseInt(inp.dataset.lote)); if (!lote) return;
+        const outros = lotesDoPedidoOrdenados(lote.pedidoId, lote.id);
+        const pos = Math.max(1, Math.min(outros.length+1, Math.round(Number(inp.value)||1)));
+        const simulada = [...outros]; simulada.splice(pos-1, 0, lote);
+        const v = violacaoOrdemLimite(simulada);
+        if (v && !loteEstaEncerrado(lote)) {
+          const f = l=>{ const d = calcularDataLimiteLote(l).dataLimite; return d?fmtBR(d):"-"; };
+          alert(`Nao da para colocar o Lote ${lote.noLote} na ordem ${pos}: o Lote ${v.antes.noLote} (limite ${f(v.antes)}) ficaria antes do Lote ${v.depois.noLote} (limite ${f(v.depois)}), e a ordem precisa seguir o limite de entrega (do mais cedo para o mais tarde).\n\nAltere o limite de entrega ou use o botao "Ordenar por limite de entrega".`);
+          reRender(); return;
+        }
         moverLoteParaOrdem(lote, inp.value);
         reRender();
       });
@@ -4650,7 +4695,7 @@ function quemPreencheItem(nome){
   if (col === "producao") return { k:"prod", rot:"Producao", auto:true, aguarda:"aguardando a Producao" };
   return { k:"ppcp", rot:"PPCP", auto:false, aguarda:"" };
 }
-const ITENS_CABECALHO = '<tr><th>Item</th><th>Solicitar ate<div class="th-sub">(data limite)</div></th><th>Solicitado em<div class="th-sub">(PPCP)</div></th><th>Inicio<div class="th-sub">(automatico)</div></th><th>Entrega prevista<div class="th-sub">(inicio ou solicitacao + prazo)</div></th><th>Entrega real</th><th>Situacao</th></tr>';
+const ITENS_CABECALHO = '<tr><th>Item</th><th>Solicitar ate<div class="th-sub">(data limite)</div></th><th>Solicitado em<div class="th-sub">(PPCP)</div></th><th>Inicio<div class="th-sub">(automatico ou manual)</div></th><th>Entrega prevista<div class="th-sub">(inicio ou solicitacao + prazo)</div></th><th>Entrega real</th><th>Situacao</th></tr>';
 function linhaItemLote(lote, row, r, tipo, nome, subTxt){
   const q = quemPreencheItem(nome);
   const solicitado = !!row.dataSolicitacao;
@@ -4666,7 +4711,11 @@ function linhaItemLote(lote, row, r, tipo, nome, subTxt){
   }
   const sol = `<input type="text" class="${cls}" ${attrId} data-field="dataSolicitacao" data-iso-inicial="${row.dataSolicitacao||""}" title="Quando o PPCP solicitou este item">`;
   let ini = '<span class="muted">&mdash;</span>', iniAuto = false;
-  if (q.auto) {
+  const nivelPpcp = nivelAcessoSetor("ppcp"); const podeManual = nivelPpcp==="editor" || nivelPpcp==="gestor";
+  if (q.auto && podeManual) {
+    iniAuto = true;
+    ini = `<input type="text" class="${cls}" ${attrId} data-field="dataInicio" data-iso-inicial="${row.dataInicio||""}" title="Preenchido automaticamente por ${q.rot}; editor/gestor tambem pode preencher a mao">` + (row.dataInicio ? "" : `<div class="muted" style="font-size:11px;">${q.aguarda}</div>`);
+  } else if (q.auto) {
     iniAuto = true;
     if (row.dataInicio) {
       let extra = "";
@@ -4681,11 +4730,12 @@ function linhaItemLote(lote, row, r, tipo, nome, subTxt){
     prev = `<div class="dt">${fmtBR(r.dataPrevista)}</div>${info}`;
   }
   let real, realAuto = q.auto;
-  if (q.auto) real = row.dataReal ? `<div class="dt">${fmtBR(parseDate(row.dataReal))}</div>` : `<span class="muted" style="font-size:12px;">${q.aguarda}</span>`;
+  if (q.auto && podeManual) real = `<input type="text" class="${cls}" ${attrId} data-field="dataReal" data-iso-inicial="${row.dataReal||""}" title="Preenchido automaticamente por ${q.rot}; editor/gestor tambem pode preencher a mao">` + (row.dataReal ? "" : `<div class="muted" style="font-size:11px;">${q.aguarda}</div>`);
+  else if (q.auto) real = row.dataReal ? `<div class="dt">${fmtBR(parseDate(row.dataReal))}</div>` : `<span class="muted" style="font-size:12px;">${q.aguarda}</span>`;
   else real = `<input type="text" class="${cls}" ${attrId} data-field="dataReal" data-iso-inicial="${row.dataReal||""}" title="Quando o item chegou ou foi concluido">`;
   const drag = tipo==="avulso" ? "avulso" : "item";
   return `<tr data-drag-id="${row.id}" data-drag-tipo="${drag}">
-    <td><div class="name"><span class="drag-h" data-edicao title="Segure e arraste para mudar a ordem">&#9776;</span>${escaparHtmlPerfil(nome)}</div><div class="sub">${subTxt}</div><span class="resp-tag ${q.k}" title="${q.auto?"Datas preenchidas automaticamente por esse setor":"O PPCP preenche as datas deste item"}">${q.rot}${q.auto?" (automatico)":""}</span></td>
+    <td><div class="name"><span class="drag-h" data-edicao title="Segure e arraste para mudar a ordem">&#9776;</span>${escaparHtmlPerfil(nome)}</div><div class="sub">${subTxt}</div><span class="resp-tag ${q.k}" title="${q.auto?"Datas preenchidas automaticamente por esse setor (editor/gestor do PPCP tambem pode preencher)":"O PPCP preenche as datas deste item"}">${q.rot}${q.auto?" (automatico)":""}</span></td>
     <td>${lim}</td><td>${sol}</td><td class="${iniAuto?"auto":""}">${ini}</td><td>${prev}</td><td class="${realAuto?"auto":""}">${real}</td><td>${pill(r.status)}</td></tr>`;
 }
 function celulasPrazoItem(r, row, tipo){
@@ -4791,6 +4841,129 @@ function renderItensLoteBody(){
     renderItensUmLote(l, sec.querySelector(".resumo-chips"), sec.querySelector(".lote-itens-corpo"), false);
   }
 }
+
+// ---- Estrutura do produto (edicao direta dentro de Itens do Lote) ----
+let estrEdit = null;      // chave da linha em edicao: "eq|itemId|loteId" ou "pc|iaId|loteId"
+let estrAdd = null;       // chave do formulario de adicionar: "eq|equipId|loteId" ou "pc|pecaId|loteId"
+function estrNomePrereqEq(ids){ const n = ids.map(id=>{const m=getItem(id); return m?m.nome:null;}).filter(Boolean); return n.length ? n.join(", ") : '<span class="muted">nenhum</span>'; }
+function estruturaEquipHtml(lote, equipId){
+  const catalogo = ordenarItensEquip(DB.itens.filter(i=>i.equipamentoId===equipId));
+  const mapa = getItensLoteByLote(lote.id);
+  let h = '<div class="estr-box"><div class="estr-titulo">Estrutura do produto <span class="muted">(pre-requisitos, dias e rastreio)</span></div><table class="estr-tab"><tr><th>Item</th><th>Pre-requisitos</th><th>Dias</th><th>Rastrear</th><th>Custo</th><th></th></tr>';
+  for (const it of catalogo) {
+    const row = mapa.get(it.id);
+    const key = "eq|"+it.id+"|"+lote.id;
+    const prazo = row && row.prazoOverride!=null ? row.prazoOverride : it.prazoDias;
+    const prereqs = (row && row.prerequisitosOverride!=null) ? row.prerequisitosOverride : getPrerequisitos(it.id);
+    const custo = row ? row.levantarCusto!==false : true;
+    if (estrEdit===key) {
+      const outros = catalogo.filter(o=>o.id!==it.id);
+      h += `<tr class="estr-edit" data-estr-row="${key}"><td>${it.nome}</td>
+        <td><div class="checklist" style="max-height:90px;min-width:220px;font-size:12px;">${outros.map(o=>`<label><input type="checkbox" class="estr-prereq" value="${o.id}" ${prereqs.includes(o.id)?"checked":""}> ${o.nome}</label>`).join("")||'<span class="muted">(nenhum outro item)</span>'}</div></td>
+        <td><input type="number" class="estr-dias" min="0" step="0.5" value="${prazo}" style="width:64px;"></td>
+        <td style="text-align:center;"><input type="checkbox" class="estr-rastrear" ${row?"checked":""}></td>
+        <td style="text-align:center;"><input type="checkbox" class="estr-custo" ${custo?"checked":""}></td>
+        <td style="white-space:nowrap;"><button type="button" class="acao-icon" data-estr-salvar="${key}" title="Salvar">&#10003;</button><button type="button" class="acao-icon danger" data-estr-cancelar title="Cancelar">&#10005;</button></td></tr>`;
+    } else {
+      h += `<tr${row?"":' style="opacity:.55;"'}><td>${it.nome}</td><td style="font-size:12px;">${estrNomePrereqEq(prereqs)}</td><td>${prazo}d${row&&row.prazoOverride!=null?' <span class="muted">(ajust.)</span>':''}</td><td style="text-align:center;">${row?"Sim":"Nao"}</td><td style="text-align:center;">${row?(custo?"Sim":"Nao"):"-"}</td><td><button type="button" class="acao-icon" data-edicao data-estr-editar="${key}" title="Editar dias, rastrear, pre-requisitos">&#9998;</button></td></tr>`;
+    }
+  }
+  h += '</table>';
+  const kAdd = "eq|"+equipId+"|"+lote.id;
+  if (estrAdd===kAdd) h += `<div class="estr-add" data-estr-addbox="${kAdd}"><input type="text" class="estr-novo-nome" placeholder="Nome do item"> <input type="number" class="estr-novo-dias" min="0" step="0.5" value="1" style="width:64px;" title="Dias"> <button type="button" class="btn btn-sm" data-estr-add-ok="${kAdd}">Adicionar</button> <button type="button" class="btn btn-sm secondary" data-estr-cancelar>Cancelar</button> <span class="muted" style="font-size:11px;">O item passa a existir no cadastro deste equipamento (vale para todos os lotes).</span></div>`;
+  else h += `<div style="margin-top:6px;"><button type="button" class="btn btn-sm secondary" data-edicao data-estr-add="${kAdd}">+ Adicionar item</button></div>`;
+  return h + '</div>';
+}
+function estruturaPecaHtml(lote, peca){
+  const todos = DB.itensAvulsos.filter(i=>i.pecaAvulsaId===peca.id);
+  let h = '<div class="estr-box"><div class="estr-titulo">Estrutura do produto <span class="muted">(pre-requisitos, dias e rastreio)</span></div><table class="estr-tab"><tr><th>Item</th><th>Pre-requisitos</th><th>Dias</th><th>Rastrear</th><th>Custo</th><th></th></tr>';
+  for (const ia of todos) {
+    const key = "pc|"+ia.id+"|"+lote.id;
+    const prereqs = getPrerequisitosAvulso(ia.id);
+    const nomes = prereqs.map(id=>{const o=DB.itensAvulsos.find(x=>x.id===id); return o?o.itemNome:null;}).filter(Boolean);
+    const rast = ia.rastrear!==false;
+    if (estrEdit===key) {
+      const outros = todos.filter(o=>o.id!==ia.id);
+      h += `<tr class="estr-edit" data-estr-row="${key}"><td><input type="text" class="estr-nome" value="${ia.itemNome.replace(/"/g,"&quot;")}" style="min-width:120px;"></td>
+        <td><div class="checklist" style="max-height:90px;min-width:220px;font-size:12px;">${outros.map(o=>`<label><input type="checkbox" class="estr-prereq" value="${o.id}" ${prereqs.includes(o.id)?"checked":""}> ${o.itemNome}</label>`).join("")||'<span class="muted">(nenhum outro item)</span>'}</div></td>
+        <td><input type="number" class="estr-dias" min="0" step="0.5" value="${ia.prazoDias}" style="width:64px;"></td>
+        <td style="text-align:center;"><input type="checkbox" class="estr-rastrear" ${rast?"checked":""}></td>
+        <td style="text-align:center;"><input type="checkbox" class="estr-custo" ${ia.levantarCusto!==false?"checked":""}></td>
+        <td style="white-space:nowrap;"><button type="button" class="acao-icon" data-estr-salvar="${key}" title="Salvar">&#10003;</button><button type="button" class="acao-icon danger" data-estr-cancelar title="Cancelar">&#10005;</button></td></tr>`;
+    } else {
+      h += `<tr${rast?"":' style="opacity:.55;"'}><td>${ia.itemNome}</td><td style="font-size:12px;">${nomes.length?nomes.join(", "):'<span class="muted">nenhum</span>'}</td><td>${ia.prazoDias}d</td><td style="text-align:center;">${rast?"Sim":"Nao"}</td><td style="text-align:center;">${rast?(ia.levantarCusto!==false?"Sim":"Nao"):"-"}</td><td><button type="button" class="acao-icon" data-edicao data-estr-editar="${key}" title="Editar nome, dias, rastrear, pre-requisitos">&#9998;</button></td></tr>`;
+    }
+  }
+  h += '</table>';
+  const kAdd = "pc|"+peca.id+"|"+lote.id;
+  if (estrAdd===kAdd) h += `<div class="estr-add" data-estr-addbox="${kAdd}"><input type="text" class="estr-novo-nome" placeholder="Nome do item"> <input type="number" class="estr-novo-dias" min="0" step="0.5" value="1" style="width:64px;" title="Dias"> <button type="button" class="btn btn-sm" data-estr-add-ok="${kAdd}">Adicionar</button> <button type="button" class="btn btn-sm secondary" data-estr-cancelar>Cancelar</button></div>`;
+  else h += `<div style="margin-top:6px;"><button type="button" class="btn btn-sm secondary" data-edicao data-estr-add="${kAdd}">+ Adicionar item</button></div>`;
+  return h + '</div>';
+}
+function estrSalvar(key){
+  const [tipo, id, loteIdS] = key.split("|"); const loteId = parseInt(loteIdS); const lote = DB.lotes.find(l=>l.id===loteId);
+  const tr = document.querySelector(`[data-estr-row="${key}"]`); if (!tr || !lote) return;
+  const dias = parseFloat(tr.querySelector(".estr-dias").value);
+  const rast = tr.querySelector(".estr-rastrear").checked;
+  const custo = tr.querySelector(".estr-custo").checked;
+  const prereqs = Array.from(tr.querySelectorAll(".estr-prereq:checked")).map(c=>parseInt(c.value));
+  if (tipo==="eq") {
+    const itemId = parseInt(id); const meta = getItem(itemId);
+    const existente = getItensLoteByLote(loteId).get(itemId);
+    if (rast) {
+      const prazoOverride = (!isNaN(dias) && meta && dias!==meta.prazoDias) ? dias : null;
+      const glob = getPrerequisitos(itemId);
+      const mudou = prereqs.length!==glob.length || prereqs.some(x=>!glob.includes(x));
+      const po = mudou ? prereqs : null;
+      if (existente) { existente.prazoOverride = prazoOverride; existente.prerequisitosOverride = po; existente.levantarCusto = custo; }
+      else { const nl = {id:DB.seq.itemLote++, loteId, itemId, dataSolicitacao:null, dataReal:null, prazoOverride, prerequisitosOverride:po, levantarCusto:custo}; DB.itensLote.push(nl); limparCacheCalc(); engCriarTarefasDoPpcp(lote, [nl]); }
+    } else if (existente) {
+      if (!confirm("Deixar de rastrear '"+(meta?meta.nome:"item")+"' neste lote? As datas e custos lancados para ele serao apagados.")) return;
+      DB.custos = DB.custos.filter(c=>c.itensLoteId!==existente.id);
+      engItensLoteRemovidos([existente.id]);
+      DB.itensLote = DB.itensLote.filter(r=>r.id!==existente.id);
+    }
+  } else {
+    const ia = DB.itensAvulsos.find(i=>i.id===parseInt(id)); if (!ia) return;
+    const nome = tr.querySelector(".estr-nome").value.trim(); if (nome) ia.itemNome = nome;
+    ia.prazoDias = isNaN(dias) ? 0 : dias; ia.rastrear = rast; ia.levantarCusto = custo;
+    DB.prerequisitosAvulsos = DB.prerequisitosAvulsos.filter(p=>p.itemAvulsoId!==ia.id);
+    prereqs.forEach(x=>DB.prerequisitosAvulsos.push({itemAvulsoId:ia.id, prereqItemAvulsoId:x}));
+  }
+  estrEdit = null; limparCacheCalc(); saveDB(); renderItensLoteBody();
+}
+function estrAdicionar(key){
+  const [tipo, id, loteIdS] = key.split("|"); const loteId = parseInt(loteIdS); const lote = DB.lotes.find(l=>l.id===loteId);
+  const box = document.querySelector(`[data-estr-addbox="${key}"]`); if (!box || !lote) return;
+  const nome = box.querySelector(".estr-novo-nome").value.trim();
+  if (!nome) { alert("Digite o nome do item."); return; }
+  const dias = parseFloat(box.querySelector(".estr-novo-dias").value); const prazo = isNaN(dias) ? 1 : dias;
+  if (tipo==="eq") {
+    const equipId = parseInt(id);
+    const novo = {id:DB.seq.item++, equipamentoId:equipId, nome, prazoDias:prazo}; DB.itens.push(novo); limparCacheCalc();
+    const nl = {id:DB.seq.itemLote++, loteId, itemId:novo.id, dataSolicitacao:null, dataReal:null, prazoOverride:null, prerequisitosOverride:null, levantarCusto:true};
+    DB.itensLote.push(nl); limparCacheCalc(); engCriarTarefasDoPpcp(lote, [nl]);
+  } else {
+    DB.itensAvulsos.push({id:DB.seq.itemAvulso++, pecaAvulsaId:parseInt(id), itemNome:nome, prazoDias:prazo, dataSolicitacao:null, dataInicio:null, dataReal:null, rastrear:true, levantarCusto:true});
+  }
+  estrAdd = null; limparCacheCalc(); saveDB(); renderItensLoteBody();
+}
+function ligarEstrutura(raiz){
+  raiz.querySelectorAll("[data-estr-editar]").forEach(b=>b.addEventListener("click", ev=>{ev.preventDefault(); estrEdit=b.dataset.estrEditar; estrAdd=null; renderItensLoteBody();}));
+  raiz.querySelectorAll("[data-estr-cancelar]").forEach(b=>b.addEventListener("click", ev=>{ev.preventDefault(); estrEdit=null; estrAdd=null; renderItensLoteBody();}));
+  raiz.querySelectorAll("[data-estr-salvar]").forEach(b=>b.addEventListener("click", ev=>{ev.preventDefault(); estrSalvar(b.dataset.estrSalvar);}));
+  raiz.querySelectorAll("[data-estr-add]").forEach(b=>b.addEventListener("click", ev=>{ev.preventDefault(); estrAdd=b.dataset.estrAdd; estrEdit=null; renderItensLoteBody();}));
+  raiz.querySelectorAll("[data-estr-add-ok]").forEach(b=>b.addEventListener("click", ev=>{ev.preventDefault(); estrAdicionar(b.dataset.estrAddOk);}));
+  raiz.querySelectorAll("[data-estr-remover]").forEach(b=>b.addEventListener("click", ev=>{
+    ev.preventDefault(); const [, id] = b.dataset.estrRemover.split("|"); const iaId = parseInt(id);
+    if (!confirm("Remover este item da peca?")) return;
+    DB.custos = DB.custos.filter(c=>c.itensAvulsoId!==iaId);
+    DB.prerequisitosAvulsos = DB.prerequisitosAvulsos.filter(p=>p.itemAvulsoId!==iaId && p.prereqItemAvulsoId!==iaId);
+    DB.itensAvulsos = DB.itensAvulsos.filter(i=>i.id!==iaId);
+    estrEdit=null; limparCacheCalc(); saveDB(); renderItensLoteBody();
+  }));
+}
+
 function renderItensUmLote(lote, resumoEl, lista, unico){
   const dl = calcularDataLimiteLote(lote);
   const {dataLimite, prazoLote} = dl;
@@ -4800,7 +4973,6 @@ function renderItensUmLote(lote, resumoEl, lista, unico){
     `<span class="chip"><span class="muted">Data Limite de Entrega</span> <b>${dataLimite?fmtBR(dataLimite):"-"}</b>${dl.diasPausa>0?` <i class="muted">(original ${fmtBR(dl.dataLimiteOriginal)} + ${dl.diasPausa}d pausados)</i>`:""}</span>`+
     `<span class="chip"><span class="muted">Caminho dos itens</span> <b>${prazoLote!==null?prazoLote+" dias":"-"}</b></span>`+
     (dl.inviavelDias>0 ? `<span class="chip danger"><b>&#9888; Prazo inviavel: faltam ${dl.inviavelDias} dia(s)</b></span>` : "")+
-    `<button type="button" class="btn secondary btn-sm" data-edicao data-edit-lote="${lote.id}" title="Editar o lote: adicionar ou remover equipamento/peca, alterar itens, prazos e pre-requisitos">&#9998; Editar lote</button>`+
     (todosItensConcluidos(lote) ? `<button class="btn" id="btnEncerrarLoteItens" style="background:var(--ok); color:#fff; padding:4px 12px;">Encerrar lote</button>` : "");
   { const be = resumoEl.querySelector("#btnEncerrarLoteItens"); if (be) be.onclick = ()=>perguntarEncerrarLote(lote); }
 
@@ -4823,7 +4995,7 @@ function renderItensUmLote(lote, resumoEl, lista, unico){
   let html = "";
   if (itensMap.size===0 && !pecasAvulsasDoLote.length) {
     lista.innerHTML = '<p class="muted">Nenhum item cadastrado para este Lote ainda. '+
-      'Use o botao "Editar lote" acima para adicionar um equipamento ou uma Peca/Conjunto Avulso.</p>';
+      'Use o lapis do lote na tela Lotes (Gerenciar) para adicionar um equipamento ou uma Peca/Conjunto Avulso.</p>';
     return;
   }
 
@@ -4842,7 +5014,7 @@ function renderItensUmLote(lote, resumoEl, lista, unico){
       const idsOrdenados = aplicarOrdemManual(ordenarItensPorPrereq(lote.id, porEquip.get(equipId)), id=>itensMap.get(id));
       const kEq = lote.id+"|eq-"+equipId;
       const nConcEq = idsOrdenados.filter(id=>itensMap.get(id).dataReal).length;
-      html += `<details class="itens-det" data-key="${kEq}" ${(itensDetAbertos.has(kEq)||filtroEquipPeca===("eq-"+equipId))?"open":""}><summary class="itens-grupo-titulo"><small>Equipamento</small>${eq?eq.nome:"?"}<button type="button" class="acao-icon btn-edit-grupo" data-edicao data-edit-grupo="eq|${equipId}|${lote.id}" title="Editar dados, itens, prazos e pre-requisitos">&#9998; Editar</button><span class="itens-cont">${nConcEq}/${idsOrdenados.length} itens concluidos</span></summary><div class="tabela-itens-lote-wrap"><table class="tabela-itens-lote">`+
+      html += `<details class="itens-det" data-key="${kEq}" ${(itensDetAbertos.has(kEq)||filtroEquipPeca===("eq-"+equipId))?"open":""}><summary class="itens-grupo-titulo"><small>Equipamento</small>${eq?eq.nome:"?"}<button type="button" class="acao-icon btn-edit-grupo" data-edicao data-edit-grupo="eq|${equipId}|${lote.id}" title="Editar">&#9998;</button><span class="itens-cont">${nConcEq}/${idsOrdenados.length} itens concluidos</span></summary><div class="tabela-itens-lote-wrap"><table class="tabela-itens-lote">`+
         ITENS_CABECALHO;
       for (const itemId of idsOrdenados) {
         const row = itensMap.get(itemId);
@@ -4851,7 +5023,7 @@ function renderItensUmLote(lote, resumoEl, lista, unico){
         html += linhaItemLote(lote, row, r, "item", meta.nome, `prazo ${row.prazoOverride!=null?row.prazoOverride+"d (ajustado)":meta.prazoDias+"d"} - acumulado ${r.prazoAcumulado}d`);
         if (r.alertaPrerequisito) alertas.push(`${eq?eq.nome:"?"} - ${meta.nome}: ${r.alertaPrerequisito}`);
       }
-      html += "</table>" + (idsOrdenados.some(id=>itensMap.get(id).ordemManual) ? `<div style="margin-top:6px;"><button type="button" class="btn secondary btn-sm" data-edicao data-reset-ordem="eq|${equipId}|${lote.id}">Restaurar ordem padrao</button></div>` : "") + "</div></details>";
+      html += "</table>" + (idsOrdenados.some(id=>itensMap.get(id).ordemManual) ? `<div style="margin-top:6px;"><button type="button" class="btn secondary btn-sm" data-edicao data-reset-ordem="eq|${equipId}|${lote.id}">Restaurar ordem padrao</button></div>` : "") + estruturaEquipHtml(lote, equipId) + "</div></details>";
     }
     html += "</div>";
   }
@@ -4862,13 +5034,13 @@ function renderItensUmLote(lote, resumoEl, lista, unico){
       const itensDaPeca = aplicarOrdemManual(ordenarItensAvulsos(DB.itensAvulsos.filter(i=>i.pecaAvulsaId===peca.id && i.rastrear!==false)), x=>x);
       const kPc = lote.id+"|peca-"+peca.id;
       const nConcPc = itensDaPeca.filter(i=>i.dataReal).length;
-      html += `<details class="itens-det" data-key="${kPc}" ${(itensDetAbertos.has(kPc)||filtroEquipPeca===("peca-"+peca.id))?"open":""}><summary class="itens-grupo-titulo peca"><small>Peca/Conjunto Avulso</small>${peca.nome}<button type="button" class="acao-icon btn-edit-grupo" data-edicao data-edit-grupo="peca|${peca.id}|${lote.id}" title="Editar dados, itens, prazos e pre-requisitos">&#9998; Editar</button><span class="itens-cont">${nConcPc}/${itensDaPeca.length} itens concluidos</span></summary><div class="tabela-itens-lote-wrap"><table class="tabela-itens-lote">`+
+      html += `<details class="itens-det" data-key="${kPc}" ${(itensDetAbertos.has(kPc)||filtroEquipPeca===("peca-"+peca.id))?"open":""}><summary class="itens-grupo-titulo peca"><small>Peca/Conjunto Avulso</small>${peca.nome}<button type="button" class="acao-icon btn-edit-grupo" data-edicao data-edit-grupo="peca|${peca.id}|${lote.id}" title="Editar">&#9998;</button><span class="itens-cont">${nConcPc}/${itensDaPeca.length} itens concluidos</span></summary><div class="tabela-itens-lote-wrap"><table class="tabela-itens-lote">`+
         ITENS_CABECALHO;
       for (const ia of itensDaPeca) {
         const r = calcularStatusItemAvulso(lote, ia, alertaDias);
         html += linhaItemLote(lote, ia, r, "avulso", ia.itemNome, `prazo ${ia.prazoDias}d - acumulado ${r.prazoAcumulado}d`);
       }
-      html += "</table>" + (itensDaPeca.some(x=>x.ordemManual) ? `<div style="margin-top:6px;"><button type="button" class="btn secondary btn-sm" data-edicao data-reset-ordem="peca|${peca.id}|${lote.id}">Restaurar ordem padrao</button></div>` : "") + "</div></details>";
+      html += "</table>" + (itensDaPeca.some(x=>x.ordemManual) ? `<div style="margin-top:6px;"><button type="button" class="btn secondary btn-sm" data-edicao data-reset-ordem="peca|${peca.id}|${lote.id}">Restaurar ordem padrao</button></div>` : "") + estruturaPecaHtml(lote, peca) + "</div></details>";
     }
     html += "</div>";
   }
@@ -4877,12 +5049,12 @@ function renderItensUmLote(lote, resumoEl, lista, unico){
 
   lista.innerHTML = html;
   ligarArrastarItens(lista);
+  ligarEstrutura(lista);
   lista.querySelectorAll("[data-edit-grupo]").forEach(b=>b.addEventListener("click", (ev)=>{
     ev.preventDefault(); ev.stopPropagation();
     const [tipo, id, loteId] = b.dataset.editGrupo.split("|");
     abrirEdicaoLote(parseInt(loteId), tipo, parseInt(id));
   }));
-  resumoEl.querySelectorAll("[data-edit-lote]").forEach(b=>b.addEventListener("click", ()=>abrirEdicaoLote(parseInt(b.dataset.editLote))));
   lista.querySelectorAll("details.itens-det").forEach(d=>d.addEventListener("toggle", ()=>{ if (d.open) itensDetAbertos.add(d.dataset.key); else itensDetAbertos.delete(d.dataset.key); }));
 
   lista.querySelectorAll("input.date-mask-avulso").forEach(inp=>{
@@ -7329,7 +7501,7 @@ function renderAcompanhamento(){
       tit("Observacoes")+(obsH.map(entH).join("")||vazio)+
       (stH.length?tit("Registros de status (anteriores)")+stH.map(entH).join(""):"")+
       tit("Movimentacoes do sistema")+(sisH.map(entH).join("")||vazio), 1);
-    html += detalhesAcomp("p"+p.id, `${seta} Pedido ${p.noPedido}${p.cliente?" - "+escAttrAcomp(p.cliente):""} <span class="muted" style="font-weight:400;">- limite: ${lim} - ${lotes.length} lote(s) - ${nAbertas} atividade(s) aberta(s)</span>`, corpo, 0);
+    html += detalhesAcomp("p"+p.id, `${seta} Pedido ${p.noPedido}${p.cliente?" - "+escAttrAcomp(p.cliente):""} <span class="muted" style="font-weight:400;">- limite: ${lim}${p.rede?" - rede: "+escAttrAcomp(p.rede):""} - ${lotes.length} lote(s) - ${nAbertas} atividade(s) aberta(s)</span>`, corpo, 0);
   }
   if (!html) html = '<div class="card"><p class="muted">Nenhum pedido aberto.</p></div>';
   // atividades sem pedido
@@ -7680,7 +7852,7 @@ function gerarSecaoPedido(pedido){
   let html = `<h3 style="color:#14462E;">Pedido ${pedido.noPedido} - ${escaparHtmlSimples(pedido.cliente||"")}</h3>`;
   const dataEntrada = parseDate(pedido.dataEntrada);
   const prazoEntregaData = dataEntrada && pedido.prazoPedido ? addPrazo(dataEntrada, pedido.prazoPedido) : null;
-  html += `<p><strong>Prazo de entrega:</strong> ${prazoEntregaData?fmtBR(prazoEntregaData):"-"}</p>`;
+  html += `<p><strong>Prazo de entrega:</strong> ${prazoEntregaData?fmtBR(prazoEntregaData):"-"}${pedido.rede?" &nbsp;|&nbsp; <strong>Rede:</strong> "+escaparHtmlSimples(pedido.rede):""}</p>`;
   const obsSalvas = (pid, lid)=>DB.statusPedido.filter(x=>x.tipo==="obs" && x.pedidoId===pid && (lid ? x.loteId===lid : !x.loteId)).sort((a,b)=>String(b.dataObs||b.data).localeCompare(String(a.dataObs||a.data))).map(x=>`<br>&bull; ${x.dataObs?fmtBR(parseDate(x.dataObs)):new Date(x.data).toLocaleDateString('pt-BR')} - ${escaparHtmlSimples(x.texto).replace(/\n/g,"<br>")}`).join("");
   if (pedido.obsAcomp || obsSalvas(pedido.id,null)) html += `<p><strong>Observacoes:</strong>${pedido.obsAcomp?" "+escaparHtmlSimples(pedido.obsAcomp).replace(/\n/g,"<br>"):""}${obsSalvas(pedido.id,null)}</p>`;
   const lotesDoPedido = DB.lotes.filter(l=>l.pedidoId===pedido.id);
@@ -9164,11 +9336,58 @@ function rncStatusDemanda(a){
   if (d.status==="rejeitada") return `<div style="font-size:10.5px; color:var(--danger); margin-top:2px;">Engenharia n&atilde;o aceitou: ${escaparHtmlPerfil(d.motivo||"")}</div>`;
   return "";
 }
+
+// ---- Correcoes da RNC dentro da atividade da Engenharia (pedido + lote) ----
+function engCorrecoesHtml(t, ro){
+  return '<div style="margin:3px 0;">' + engCorrecoesRnc(t).map(c=>`<label style="display:flex; gap:5px; align-items:flex-start; font-size:10.5px; margin:3px 0; ${c.feita?"opacity:.65;":""}"><input type="checkbox" data-corr-chk="${t.id}|${c.id}" ${c.feita?"checked":""} ${ro?"disabled":""} style="margin-top:2px;"><span><strong>RNC ${numRnc(c.rncSeq)}</strong>: ${escaparHtmlPerfil(c.texto)}${c.prazo?` <span class="muted">(prazo ${isoParaBR(c.prazo)})</span>`:""}${c.feita?`<br><span class="muted" style="font-size:9.5px;">&#10003; ${escaparHtmlPerfil(nomeExibicao(c.feitaPor||""))} em ${new Date(c.feitaEm).toLocaleDateString("pt-BR")}</span>`:""}</span></label>`).join("") + '<div class="muted" style="font-size:9.5px;">A atividade s&oacute; segue para Aprova&ccedil;&atilde;o quando todas estiverem marcadas.</div></div>';
+}
+function engCorrecoesRnc(t){ return Array.isArray(t.correcoesRnc) ? t.correcoesRnc : []; }
+function engCorrecoesPendentes(t){ return engCorrecoesRnc(t).filter(c=>!c.feita); }
+function engTarefaParaRnc(r){
+  if (!r.pedidoId || !r.loteId) return null;
+  const cand = (DB.tarefasEngenharia||[]).filter(t=>!t.finalizada && !t.concluida && t.pedidoId===r.pedidoId && t.loteId===r.loteId);
+  if (!cand.length) return null;
+  const pont = t=>(r.equipamentoRef && t.equipamentoRef===r.equipamentoRef ? 2 : 0) + ((t.origem && t.origem.tipo==="rnc") ? 0 : 1);
+  return cand.slice().sort((a,b)=>pont(b)-pont(a))[0];
+}
+function engNovaCorrecao(r, a){
+  return { id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), rncId:r.id, rncSeq:r.sequencia, acaoId:a.id, texto:a.acao, responsavel:a.responsavel||"", prazo:a.prazo||"", feita:false, feitaPor:null, feitaEm:null };
+}
+function engSincronizarCorrecoesRnc(r, a){
+  // devolve true quando a correcao ficou dentro de uma atividade (nao precisa de demanda)
+  const pedLote = !!(r.pedidoId && r.loteId);
+  let achada = null, dona = null;
+  for (const t of (DB.tarefasEngenharia||[])) { const c = engCorrecoesRnc(t).find(x=>x.rncId===r.id && x.acaoId===a.id); if (c) { achada = c; dona = t; break; } }
+  const ehEng = a.setor==="Engenharia" && (a.acao||"").trim();
+  if (achada) {
+    if (!pedLote || !ehEng) { if (!achada.feita) dona.correcoesRnc = dona.correcoesRnc.filter(x=>x!==achada); return pedLote && ehEng; }
+    if (!achada.feita) { achada.texto = a.acao; achada.responsavel = a.responsavel||""; achada.prazo = a.prazo||""; }
+    return true;
+  }
+  if (!pedLote || !ehEng) return false;
+  const alvo = engTarefaParaRnc(r); if (!alvo) return false;
+  if (!Array.isArray(alvo.correcoesRnc)) alvo.correcoesRnc = [];
+  alvo.correcoesRnc.push(engNovaCorrecao(r, a));
+  return true;
+}
+function engMarcarCorrecaoRnc(tarefaId, corrId, feita){
+  if (nivelAcessoSetor("engenharia")==="visualizador") return;
+  const t = DB.tarefasEngenharia.find(x=>x.id===tarefaId); if (!t) return;
+  const c = engCorrecoesRnc(t).find(x=>x.id===corrId); if (!c) return;
+  c.feita = !!feita; c.feitaPor = feita ? emailUsuarioAtual : null; c.feitaEm = feita ? new Date().toISOString() : null;
+  saveDB(); renderEngKanban();
+}
 function rncGerarDemandasEngenharia(r){
   if (!DB.demandasEngRnc) DB.demandasEngRnc = [];
   const agora = new Date().toISOString();
   (r.acoes||[]).forEach(a=>{
     const d = a.demandaEngId ? DB.demandasEngRnc.find(x=>x.id===a.demandaEngId) : null;
+    if (engSincronizarCorrecoesRnc(r, a)) {
+      // com Pedido + Lote, a correcao entra direto na atividade existente (sem demanda)
+      if (d && d.status==="pendente") removerDaColecao("demandasEngRnc", x=>x.id!==d.id);
+      if (d && d.status==="pendente") a.demandaEngId = null;
+      return;
+    }
     if (a.setor === "Engenharia" && (a.acao||"").trim()) {
       if (!d) {
         const nova = { id: DB.seq.demandaEngRnc++, rncId:r.id, rncSeq:r.sequencia, acaoId:a.id, acao:a.acao, prazo:a.prazo||"", responsavelSugerido:a.responsavel||"", status:"pendente", criadoEm:agora, criadoPor:emailUsuarioAtual };
@@ -9190,7 +9409,8 @@ function engAprovarDemandaRnc(id){
     numeroDesenho: rncDesenhos(r).map(x=>x.numero).filter(Boolean).join(", "), coluna:"coleta", checklistProjeto:null, checklistDetalhamento:null,
     criadoEm:agora, criadoPor:emailUsuarioAtual, periodosAtivos:[], rodando:false, finalizada:false, atribuicaoPendente:null, atribuicaoRejeitada:null,
     prazo: (d.prazo && prazoIsoValido(d.prazo)) ? d.prazo : null, dispensasPendentes:[], dispensaRejeitada:null,
-    coResponsaveis:[], compartilhamentosPendentes:[], compartilhamentoRejeitado:null, origem:{ tipo:"rnc", rncId:r.id, rncSeq:d.rncSeq, demandaId:d.id }, descricaoOrigem: d.acao };
+    coResponsaveis:[], compartilhamentosPendentes:[], compartilhamentoRejeitado:null, origem:{ tipo:"rnc", rncId:r.id, rncSeq:d.rncSeq, demandaId:d.id }, descricaoOrigem: d.acao,
+    correcoesRnc: (r.pedidoId && r.loteId) ? [{ id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), rncId:r.id, rncSeq:d.rncSeq, acaoId:d.acaoId, texto:d.acao, responsavel:d.responsavelSugerido||"", prazo:d.prazo||"", feita:false, feitaPor:null, feitaEm:null }] : [] };
   DB.tarefasEngenharia.push(tarefa);
   d.status = "aprovada"; d.tarefaId = tarefa.id; d.decididoPor = emailUsuarioAtual; d.decididoEm = agora;
   saveDB(); renderEngPendencias(); renderEngKanban();
@@ -10741,11 +10961,11 @@ function renderEngProximas(){
   const pessoas = gestor ? Object.values(DB.perfis||{}).filter(p=>p.atual).map(p=>p.email) : [];
   wrap.innerHTML = `<h2 style="font-size:16px; margin:18px 0 2px; color:var(--primary-dark);">Pr&oacute;ximas atividades (${lista.length})</h2>
     <p class="muted" style="font-size:12px; margin:0 0 8px;">Atividades que precisam ser feitas mas ainda n&atilde;o t&ecirc;m respons&aacute;vel. Ao atribuir (ou assumir), v&atilde;o para o Kanban. Ordem: prioridade GUT.</p>` +
-    (lista.length ? `<div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:8px;">` + lista.map(t=>{
+    (lista.length ? `<div style="display:flex; flex-direction:column; gap:8px; max-width:820px;">` + lista.map((t,idx)=>{
       const pedido = t.pedidoId ? getPedido(t.pedidoId) : null, lote = t.loteId ? DB.lotes.find(l=>l.id===t.loteId) : null;
       const s = situacaoPrazoTarefa(t);
-      return `<div class="card" style="padding:9px; font-size:11px; border-left:3px solid #B7791F;">
-        <div><strong style="font-size:12px;">${escaparHtmlPerfil(t.titulo)}</strong>${engRotuloOrigem(t)}</div>
+      return `<div class="card" style="padding:10px 12px; font-size:12px; border-left:4px solid #B7791F; margin:0;">
+        <div><span class="pill" style="background:#B7791F; margin-right:6px;">${idx+1}&ordm;</span><strong style="font-size:13px;">${escaparHtmlPerfil(t.titulo)}</strong>${engRotuloOrigem(t)}</div>
         <div style="margin-top:2px;">${engGutBadge(t)}</div>
         ${t.descricaoOrigem ? `<div style="font-size:10px; margin-top:3px;">${escaparHtmlPerfil(t.descricaoOrigem)}</div>` : ""}
         <div class="muted" style="font-size:10px; margin-top:3px;">${pedido?("Pedido "+escaparHtmlPerfil(String(pedido.noPedido))):""}${pedido&&lote?" - ":""}${lote?("Lote "+escaparHtmlPerfil(String(lote.noLote))):""}</div>
@@ -10823,6 +11043,7 @@ function renderEngKanbanBoard(){
             ${sc==="desenho" ? `<div style="display:flex; gap:4px; margin:3px 0;"><input type="text" data-desenho-input="${t.id}" value="${escaparHtmlPerfil(t.numeroDesenho||"")}" ${somenteLeituraEng?"disabled":""} style="flex:1; min-width:0; font-size:10px;">${somenteLeituraEng?"":`<button type="button" class="btn btn-sm" data-desenho-salvar="${t.id}" style="font-size:9.5px; padding:3px 7px;">Salvar</button>`}</div>` : ""}
             ${somenteLeituraEng ? "" : `<div style="${sec}">${cab("responsavel","&#128100;","Responsavel")}${sc==="responsavel" ? `<select data-resp-select="${t.id}" style="width:100%; font-size:10px; margin-top:3px;"></select>${gestorAgora?"":'<div style="font-size:9px; color:#B7791F; margin-top:2px;">A troca so vale depois da aprovacao do gestor.</div>'}<div style="display:flex; gap:4px; margin:4px 0;"><button type="button" class="btn btn-sm" data-resp-salvar="${t.id}" style="flex:1; font-size:9.5px; padding:3px 7px;">${gestorAgora?"Alterar":"Solicitar troca"}</button><button type="button" class="btn secondary btn-sm" data-resp-colab="${t.id}" style="flex:1; font-size:9.5px; padding:3px 7px;">+ Colaborador</button></div>` : ""}</div>`}
             <div style="${sec}">${cab("checklist","&#9745;","Checklists")}${sc==="checklist" ? (chk || '<div class="muted" style="font-size:9.5px; margin:3px 0;">Nenhum checklist disponivel ainda.</div>') : ""}</div>
+            ${engCorrecoesRnc(t).length ? `<div style="${sec}">${cab("correcoes","&#128295;","Correcoes da RNC ("+(engCorrecoesRnc(t).length-engCorrecoesPendentes(t).length)+"/"+engCorrecoesRnc(t).length+")")}${sc==="correcoes" ? engCorrecoesHtml(t, somenteLeituraEng) : ""}</div>` : ""}
             <div style="${sec}">${cab("gut","&#127919;","Prioridade (GUT)")}${sc==="gut" ? engGutSelects(t) : ""}</div>
           </div>`;
         }
@@ -10832,6 +11053,7 @@ function renderEngKanbanBoard(){
             ${somenteLeituraEng ? "" : `<button type="button" class="acao-icon btn-leitura" data-toggle-menu-tarefa="${t.id}" title="Opcoes" style="flex-shrink:0; font-size:12px;">&#9998;</button>`}
           </div>
           <div style="margin-top:2px;">${engGutBadge(t)}</div>
+          ${engCorrecoesRnc(t).length ? `<div style="font-size:10px; margin-top:3px; color:${engCorrecoesPendentes(t).length?"#B7791F":"var(--ok)"};">&#128295; Correcoes da RNC: ${engCorrecoesRnc(t).length-engCorrecoesPendentes(t).length}/${engCorrecoesRnc(t).length}</div>` : ""}
           <div class="menu-lote ${menuAberto?"":"hidden"}" data-menu-tarefa="${t.id}" style="font-size:12px;">
             ${somenteLeituraEng ? "" : `<button type="button" data-editar-tarefa="${t.id}">Editar</button>
             <button type="button" class="danger" data-excluir-tarefa="${t.id}">Excluir</button>`}
@@ -10901,6 +11123,7 @@ function renderEngKanbanBoard(){
       renderEngKanban();
     });
   });
+  board.querySelectorAll("[data-corr-chk]").forEach(cb=>cb.addEventListener("change", e=>{ e.stopPropagation(); const [tid, cid] = cb.dataset.corrChk.split("|"); engMarcarCorrecaoRnc(parseInt(tid), cid, cb.checked); }));
   board.querySelectorAll("[data-secao-card]").forEach(btn=>{
     btn.addEventListener("click", (e)=>{
       e.stopPropagation();
@@ -11202,6 +11425,10 @@ function moverTarefaEngenharia(tarefaId, colunaDestino){
   const dispensar = [];
   const faltando = [];
 
+  if (colunaDestino === "aprovacao" && engCorrecoesPendentes(tarefa).length) {
+    alert(`Esta atividade ainda tem ${engCorrecoesPendentes(tarefa).length} correcao(oes) da RNC sem marcar como realizada. Abra Detalhes > Correcoes da RNC e marque cada uma quando estiver realmente feita.`);
+    renderEngKanban(); return;
+  }
   if (!paraSuspensa && idxDestino > idxBase) {
     // avancando: toda revisao que ficar pra tras precisa estar aprovada (nao da pra pular)
     for (const [colId, def] of Object.entries(COLUNAS_REVISAO)) {
@@ -11789,6 +12016,7 @@ function aprovarTarefaFinal(tarefaId){
   if (!souGestorEng()) return;
   const t = DB.tarefasEngenharia.find(x=>x.id===tarefaId);
   if (!t || t.coluna!=="aprovacao" || t.concluida) return;
+  if (engCorrecoesPendentes(t).length) { alert("Ainda ha correcao(oes) da RNC sem marcar como realizada nesta atividade."); return; }
   const pend = [];
   if (t.checklistProjeto && t.checklistProjeto.enviado && !t.checklistProjeto.aprovado) pend.push("Projeto");
   if (t.checklistDetalhamento && t.checklistDetalhamento.enviado && !t.checklistDetalhamento.aprovado) pend.push("Detalhamento");
