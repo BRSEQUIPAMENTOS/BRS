@@ -9339,7 +9339,7 @@ function rncStatusDemanda(a){
 
 // ---- Correcoes da RNC dentro da atividade da Engenharia (pedido + lote) ----
 function engCorrecoesHtml(t, ro){
-  return '<div style="margin:3px 0;">' + engCorrecoesRnc(t).map(c=>`<label style="display:flex; gap:5px; align-items:flex-start; font-size:10.5px; margin:3px 0; ${c.feita?"opacity:.65;":""}"><input type="checkbox" data-corr-chk="${t.id}|${c.id}" ${c.feita?"checked":""} ${ro?"disabled":""} style="margin-top:2px;"><span><strong>RNC ${numRnc(c.rncSeq)}</strong>: ${escaparHtmlPerfil(c.texto)}${c.prazo?` <span class="muted">(prazo ${isoParaBR(c.prazo)})</span>`:""}${c.feita?`<br><span class="muted" style="font-size:9.5px;">&#10003; ${escaparHtmlPerfil(nomeExibicao(c.feitaPor||""))} em ${new Date(c.feitaEm).toLocaleDateString("pt-BR")}</span>`:""}</span></label>`).join("") + '<div class="muted" style="font-size:9.5px;">Marque cada atividade quando ela for realmente executada. O card s&oacute; segue para Aprova&ccedil;&atilde;o com todas marcadas.</div></div>';
+  return '<div style="margin:3px 0;">' + engCorrecoesRnc(t).map(c=>`<label style="display:flex; gap:5px; align-items:flex-start; font-size:10.5px; margin:3px 0; ${c.feita?"opacity:.65;":""}"><input type="checkbox" data-corr-chk="${t.id}|${c.id}" ${c.feita?"checked":""} ${ro?"disabled":""} style="margin-top:2px;"><span><strong>RNC ${numRnc(c.rncSeq)}</strong>${c.novo&&!c.feita?' <span style="background:#B7791F; color:#fff; border-radius:7px; padding:0 5px; font-size:9px;">NOVA</span>':""}: ${escaparHtmlPerfil(c.texto)}${c.prazo?` <span class="muted">(prazo ${isoParaBR(c.prazo)})</span>`:""}${c.feita?`<br><span class="muted" style="font-size:9.5px;">&#10003; ${escaparHtmlPerfil(nomeExibicao(c.feitaPor||""))} em ${new Date(c.feitaEm).toLocaleDateString("pt-BR")}</span>`:""}</span></label>`).join("") + '<div class="muted" style="font-size:9.5px;">Marque cada atividade quando ela for realmente executada. O card s&oacute; segue para Aprova&ccedil;&atilde;o com todas marcadas.</div></div>';
 }
 function engCorrecoesRnc(t){ return Array.isArray(t.correcoesRnc) ? t.correcoesRnc : []; }
 function engCorrecoesPendentes(t){ return engCorrecoesRnc(t).filter(c=>!c.feita); }
@@ -9394,27 +9394,55 @@ function engNovaCorrecao(r, a){
   return { id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), rncId:r.id, rncSeq:r.sequencia, acaoId:a.id, texto:a.acao, responsavel:a.responsavel||"", prazo:a.prazo||"", feita:false, feitaPor:null, feitaEm:null };
 }
 function engSincronizarCorrecoesRnc(r, a){
-  // devolve true quando a correcao ficou dentro de uma atividade (nao precisa de demanda)
+  // devolve true quando a correcao ficou dentro de um card de correcao (nao precisa de demanda)
   const pedLote = !!(r.pedidoId && r.loteId);
+  const ehEng = !!(a.setor==="Engenharia" && (a.acao||"").trim());
   let achada = null, dona = null;
   for (const t of (DB.tarefasEngenharia||[])) { const c = engCorrecoesRnc(t).find(x=>x.rncId===r.id && x.acaoId===a.id); if (c) { achada = c; dona = t; break; } }
-  const ehEng = a.setor==="Engenharia" && (a.acao||"").trim();
   if (achada) {
-    if (!pedLote || !ehEng) { if (!achada.feita) dona.correcoesRnc = dona.correcoesRnc.filter(x=>x!==achada); return pedLote && ehEng; }
-    if (!achada.feita) { achada.texto = a.acao; achada.responsavel = a.responsavel||""; achada.prazo = a.prazo||""; }
-    return true;
+    const noLugar = pedLote && ehEng && dona.pedidoId===r.pedidoId && dona.loteId===r.loteId && (dona.equipamentoRef||"")===(r.equipamentoRef||"");
+    if (noLugar) { if (!achada.feita) { achada.texto = a.acao; achada.responsavel = a.responsavel||""; achada.prazo = a.prazo||""; } return true; }
+    if (achada.feita) return pedLote && ehEng;   // ja executada: fica onde esta
+    // RNC mudou de pedido/lote/equipamento (ou a acao saiu da Engenharia): tira do card antigo
+    dona.correcoesRnc = dona.correcoesRnc.filter(x=>x!==achada);
+    if (!dona.correcoesRnc.length && dona.origem && dona.origem.correcao && dona.coluna==="coleta" && !(dona.periodosAtivos||[]).length) removerDaColecao("tarefasEngenharia", x=>x.id!==dona.id);
   }
   if (!pedLote || !ehEng) return false;
   const alvo = engCartaoCorrecao(r, true); if (!alvo) return false;
   if (!Array.isArray(alvo.correcoesRnc)) alvo.correcoesRnc = [];
-  alvo.correcoesRnc.push(engNovaCorrecao(r, a));
+  const nova = engNovaCorrecao(r, a); nova.novo = alvo.correcoesRnc.length > 0 || alvo.coluna!=="coleta";
+  alvo.correcoesRnc.push(nova);
+  if (alvo.coluna==="aprovacao" && !alvo.concluida) {
+    alvo.coluna = "detalhamento"; alvo.enviadaAprovacaoEm = null;
+    alvo.devolucaoAprovacao = { motivo:"Nova atividade da RNC "+numRnc(r.sequencia)+" adicionada ao card", em:new Date().toISOString(), por:emailUsuarioAtual };
+  }
   return true;
+}
+// confere todas as RNCs abertas (com pedido + lote) e garante que cada atividade da Engenharia esteja no card de correcao
+function engSincronizarTodasRnc(){
+  if (nivelAcessoSetor("engenharia")==="visualizador") return false;
+  const total = ()=>(DB.tarefasEngenharia||[]).reduce((n,t)=>n+engCorrecoesRnc(t).length,0) + (DB.tarefasEngenharia||[]).length;
+  const antes = total(); let mexeu = false;
+  for (const r of (DB.rncs||[])) {
+    if (r.status==="encerrada" || !r.pedidoId || !r.loteId) continue;
+    for (const a of (r.acoes||[])) {
+      if (!a.id || a.setor!=="Engenharia" || !(a.acao||"").trim()) continue;
+      const d = a.demandaEngId ? (DB.demandasEngRnc||[]).find(x=>x.id===a.demandaEngId) : null;
+      if (d && d.status==="rejeitada") continue;
+      const jaTem = (DB.tarefasEngenharia||[]).some(t=>engCorrecoesRnc(t).some(c=>c.rncId===r.id && c.acaoId===a.id));
+      if (!jaTem && d && d.status==="aprovada") continue;   // virou card ja finalizado
+      if (jaTem) continue;
+      if (engSincronizarCorrecoesRnc(r, a)) { mexeu = true; if (d && d.status==="pendente") { removerDaColecao("demandasEngRnc", x=>x.id!==d.id); a.demandaEngId = null; } }
+    }
+  }
+  if (mexeu || total()!==antes) { limparCacheCalc(); saveDB(); return true; }
+  return false;
 }
 function engMarcarCorrecaoRnc(tarefaId, corrId, feita){
   if (nivelAcessoSetor("engenharia")==="visualizador") return;
   const t = DB.tarefasEngenharia.find(x=>x.id===tarefaId); if (!t) return;
   const c = engCorrecoesRnc(t).find(x=>x.id===corrId); if (!c) return;
-  c.feita = !!feita; c.feitaPor = feita ? emailUsuarioAtual : null; c.feitaEm = feita ? new Date().toISOString() : null;
+  c.feita = !!feita; if (feita) c.novo = false; c.feitaPor = feita ? emailUsuarioAtual : null; c.feitaEm = feita ? new Date().toISOString() : null;
   saveDB(); renderEngKanban();
 }
 function rncGerarDemandasEngenharia(r){
@@ -10147,7 +10175,7 @@ function showEngPage(name){
 document.querySelectorAll(".eng-navbtn").forEach(b=>b.addEventListener("click", ()=>showEngPage(b.dataset.engpage)));
 
 async function renderEngenharia(){
-  try { engUnificarCartoesRnc(); } catch(e) { console.error(e); }
+  try { engUnificarCartoesRnc(); engSincronizarTodasRnc(); } catch(e) { console.error(e); }
   renderEngPendencias();
 
   const selPedido = document.getElementById("engNovaTarefaPedido");
@@ -11084,7 +11112,7 @@ function renderEngKanbanBoard(){
             ${sc==="desenho" ? `<div style="display:flex; gap:4px; margin:3px 0;"><input type="text" data-desenho-input="${t.id}" value="${escaparHtmlPerfil(t.numeroDesenho||"")}" ${somenteLeituraEng?"disabled":""} style="flex:1; min-width:0; font-size:10px;">${somenteLeituraEng?"":`<button type="button" class="btn btn-sm" data-desenho-salvar="${t.id}" style="font-size:9.5px; padding:3px 7px;">Salvar</button>`}</div>` : ""}
             ${somenteLeituraEng ? "" : `<div style="${sec}">${cab("responsavel","&#128100;","Responsavel")}${sc==="responsavel" ? `<select data-resp-select="${t.id}" style="width:100%; font-size:10px; margin-top:3px;"></select>${gestorAgora?"":'<div style="font-size:9px; color:#B7791F; margin-top:2px;">A troca so vale depois da aprovacao do gestor.</div>'}<div style="display:flex; gap:4px; margin:4px 0;"><button type="button" class="btn btn-sm" data-resp-salvar="${t.id}" style="flex:1; font-size:9.5px; padding:3px 7px;">${gestorAgora?"Alterar":"Solicitar troca"}</button><button type="button" class="btn secondary btn-sm" data-resp-colab="${t.id}" style="flex:1; font-size:9.5px; padding:3px 7px;">+ Colaborador</button></div>` : ""}</div>`}
             <div style="${sec}">${cab("checklist","&#9745;","Checklists")}${sc==="checklist" ? (chk || '<div class="muted" style="font-size:9.5px; margin:3px 0;">Nenhum checklist disponivel ainda.</div>') : ""}</div>
-            ${engCorrecoesRnc(t).length ? `<div style="${sec}">${cab("correcoes","&#128295;","Atividades em RNC ("(engCorrecoesRnc(t).length-engCorrecoesPendentes(t).length)+"/"+engCorrecoesRnc(t).length+")")}${sc==="correcoes" ? engCorrecoesHtml(t, somenteLeituraEng) : ""}</div>` : ""}
+            ${engCorrecoesRnc(t).length ? `<div style="${sec}">${cab("correcoes","&#128295;","Atividades em RNC ("+(engCorrecoesRnc(t).length-engCorrecoesPendentes(t).length)+"/"+engCorrecoesRnc(t).length+")")}${sc==="correcoes" ? engCorrecoesHtml(t, somenteLeituraEng) : ""}</div>` : ""}
             <div style="${sec}">${cab("gut","&#127919;","Prioridade (GUT)")}${sc==="gut" ? engGutSelects(t) : ""}</div>
           </div>`;
         }
@@ -11094,7 +11122,7 @@ function renderEngKanbanBoard(){
             ${somenteLeituraEng ? "" : `<button type="button" class="acao-icon btn-leitura" data-toggle-menu-tarefa="${t.id}" title="Opcoes" style="flex-shrink:0; font-size:12px;">&#9998;</button>`}
           </div>
           <div style="margin-top:2px;">${engGutBadge(t)}</div>
-          ${engCorrecoesRnc(t).length ? `<div style="font-size:10px; margin-top:3px; color:${engCorrecoesPendentes(t).length?"#B7791F":"var(--ok)"};">&#128295; Atividades em RNC: ${engCorrecoesRnc(t).length-engCorrecoesPendentes(t).length}/${engCorrecoesRnc(t).length}</div>` : ""}
+          ${engCorrecoesRnc(t).length ? `<div style="font-size:10px; margin-top:3px; color:${engCorrecoesPendentes(t).length?"#B7791F":"var(--ok)"};">&#128295; Atividades em RNC: ${engCorrecoesRnc(t).some(c=>c.novo&&!c.feita)?"(atualizado) ":""}${engCorrecoesRnc(t).length-engCorrecoesPendentes(t).length}/${engCorrecoesRnc(t).length}</div>` : ""}
           <div class="menu-lote ${menuAberto?"":"hidden"}" data-menu-tarefa="${t.id}" style="font-size:12px;">
             ${somenteLeituraEng ? "" : `<button type="button" data-editar-tarefa="${t.id}">Editar</button>
             <button type="button" class="danger" data-excluir-tarefa="${t.id}">Excluir</button>`}
