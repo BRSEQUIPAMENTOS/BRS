@@ -463,7 +463,7 @@
     </form>
     <div style="text-align:center; margin-top:8px;"><a href="#" id="loginEsqueciSenhaLink" style="font-size:12px; color:#8A8F87;">Esqueci minha senha</a></div>
     <div id="loginMsg" style="margin-top:10px; font-size:12.5px; min-height:18px;"></div>
-    <div style="margin-top:8px; font-size:10.5px; color:#9AA79F; text-align:center;">Versao 198 - 16/11/2026</div>
+    <div style="margin-top:8px; font-size:10.5px; color:#9AA79F; text-align:center;">Versao 199 - 16/11/2026</div>
     <div id="loginOfflineWrap" class="hidden" style="margin-top:6px;">
       <button id="loginOfflineBtn" style="width:100%; padding:8px; background:transparent; color:#8A8F87; border:1px solid #E1E6DE; border-radius:6px; font-size:12.5px; cursor:pointer;">Continuar sem conexao (usa os dados salvos neste navegador)</button>
     </div>
@@ -501,7 +501,7 @@
     <div style="height:3px; width:60px; background:#91C53E; border-radius:2px; margin-bottom:34px;"></div>
     <div id="painelPastasGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(172px, 1fr)); gap:14px;"></div>
     <div id="painelMinhasAtividades" style="margin-top:28px;"></div>
-    <p style="margin:30px 0 0; font-size:11px; color:#9AA79F;">Versao 198 - 16/11/2026</p>
+    <p style="margin:30px 0 0; font-size:11px; color:#9AA79F;">Versao 199 - 16/11/2026</p>
   </div>
 </div>
 
@@ -911,9 +911,9 @@
           <div class="field"><label class="field-label">Titulo da tarefa</label><input type="text" id="engNovaTarefaTitulo" placeholder="Ex: Projetar suporte do silo"></div>
           <div class="field hidden" id="engNovaTarefaFuncionarioWrap"><label class="field-label">Atribuir para</label><select id="engNovaTarefaFuncionario"></select><div id="engNovaTarefaAvisoAprovacao" class="hidden" style="font-size:10.5px; color:#B7791F; margin-top:3px;">Essa atribuicao precisa da aprovacao do gestor.</div></div>
           <div class="field" id="engNovaTarefaFuncionarioFixoWrap"><label class="field-label">Atribuida para</label><div id="engNovaTarefaFuncionarioFixo" class="muted" style="padding-top:9px; font-weight:600; color:var(--primary-dark);">-</div><div id="engNovaTarefaDicaCadastro" class="hidden" style="font-size:10.5px; color:#6B7B70; margin-top:3px;">Pra atribuir tarefas a colegas da Engenharia, complete seu cadastro (setor Engenharia) e aguarde a aprovacao.</div></div>
-          <div class="field"><label class="field-label">Pedido</label><select id="engNovaTarefaPedido"></select></div>
-          <div class="field"><label class="field-label">Lote</label><select id="engNovaTarefaLote"></select></div>
-          <div class="field"><label class="field-label">Equipamento / Peca/Conjunto Avulso</label><select id="engNovaTarefaEquip"></select></div>
+          <div class="field"><label class="field-label">Pedido <span class="muted">(opcional)</span></label><select id="engNovaTarefaPedido"></select></div>
+          <div class="field"><label class="field-label">Lote <span class="muted">(opcional)</span></label><select id="engNovaTarefaLote"></select></div>
+          <div class="field"><label class="field-label">Equipamento / Peca/Conjunto Avulso <span class="muted">(opcional)</span></label><select id="engNovaTarefaEquip"></select></div>
           <div class="field hidden" id="engNovaTarefaPrazoWrap"><label class="field-label">Prazo de execucao</label><input type="date" id="engNovaTarefaPrazo"></div>
           <div class="field eng-gut-f hidden"><label class="field-label">G &ndash; Gravidade</label><select id="engNovaG"></select></div>
           <div class="field eng-gut-f hidden"><label class="field-label">U &ndash; Urg&ecirc;ncia</label><select id="engNovaU"></select></div>
@@ -9339,16 +9339,56 @@ function rncStatusDemanda(a){
 
 // ---- Correcoes da RNC dentro da atividade da Engenharia (pedido + lote) ----
 function engCorrecoesHtml(t, ro){
-  return '<div style="margin:3px 0;">' + engCorrecoesRnc(t).map(c=>`<label style="display:flex; gap:5px; align-items:flex-start; font-size:10.5px; margin:3px 0; ${c.feita?"opacity:.65;":""}"><input type="checkbox" data-corr-chk="${t.id}|${c.id}" ${c.feita?"checked":""} ${ro?"disabled":""} style="margin-top:2px;"><span><strong>RNC ${numRnc(c.rncSeq)}</strong>: ${escaparHtmlPerfil(c.texto)}${c.prazo?` <span class="muted">(prazo ${isoParaBR(c.prazo)})</span>`:""}${c.feita?`<br><span class="muted" style="font-size:9.5px;">&#10003; ${escaparHtmlPerfil(nomeExibicao(c.feitaPor||""))} em ${new Date(c.feitaEm).toLocaleDateString("pt-BR")}</span>`:""}</span></label>`).join("") + '<div class="muted" style="font-size:9.5px;">A atividade s&oacute; segue para Aprova&ccedil;&atilde;o quando todas estiverem marcadas.</div></div>';
+  return '<div style="margin:3px 0;">' + engCorrecoesRnc(t).map(c=>`<label style="display:flex; gap:5px; align-items:flex-start; font-size:10.5px; margin:3px 0; ${c.feita?"opacity:.65;":""}"><input type="checkbox" data-corr-chk="${t.id}|${c.id}" ${c.feita?"checked":""} ${ro?"disabled":""} style="margin-top:2px;"><span><strong>RNC ${numRnc(c.rncSeq)}</strong>: ${escaparHtmlPerfil(c.texto)}${c.prazo?` <span class="muted">(prazo ${isoParaBR(c.prazo)})</span>`:""}${c.feita?`<br><span class="muted" style="font-size:9.5px;">&#10003; ${escaparHtmlPerfil(nomeExibicao(c.feitaPor||""))} em ${new Date(c.feitaEm).toLocaleDateString("pt-BR")}</span>`:""}</span></label>`).join("") + '<div class="muted" style="font-size:9.5px;">Marque cada atividade quando ela for realmente executada. O card s&oacute; segue para Aprova&ccedil;&atilde;o com todas marcadas.</div></div>';
 }
 function engCorrecoesRnc(t){ return Array.isArray(t.correcoesRnc) ? t.correcoesRnc : []; }
 function engCorrecoesPendentes(t){ return engCorrecoesRnc(t).filter(c=>!c.feita); }
-function engTarefaParaRnc(r){
+function engTituloCorrecao(nome){ return "CORRE\u00c7\u00c3O - " + (nome || "RNC"); }
+function engCartaoCorrecao(r, criar){
   if (!r.pedidoId || !r.loteId) return null;
-  const cand = (DB.tarefasEngenharia||[]).filter(t=>!t.finalizada && !t.concluida && t.pedidoId===r.pedidoId && t.loteId===r.loteId);
-  if (!cand.length) return null;
-  const pont = t=>(r.equipamentoRef && t.equipamentoRef===r.equipamentoRef ? 2 : 0) + ((t.origem && t.origem.tipo==="rnc") ? 0 : 1);
-  return cand.slice().sort((a,b)=>pont(b)-pont(a))[0];
+  const mesmo = t=>!t.finalizada && !t.concluida && t.origem && t.origem.correcao && t.pedidoId===r.pedidoId && t.loteId===r.loteId && (t.equipamentoRef||"")===(r.equipamentoRef||"");
+  const achado = (DB.tarefasEngenharia||[]).find(mesmo);
+  if (achado || !criar) return achado || null;
+  const agora = new Date().toISOString();
+  const t = { id: DB.seq.tarefaEngenharia++, titulo: engTituloCorrecao(r.equipamentoNome), funcionario:null,
+    pedidoId:r.pedidoId, loteId:r.loteId, equipamentoRef:r.equipamentoRef||"", equipamentoNome:r.equipamentoNome||"",
+    numeroDesenho:"", coluna:"coleta", checklistProjeto:null, checklistDetalhamento:null,
+    criadoEm:agora, criadoPor:emailUsuarioAtual, periodosAtivos:[], rodando:false, finalizada:false, atribuicaoPendente:null, atribuicaoRejeitada:null,
+    prazo:null, dispensasPendentes:[], dispensaRejeitada:null, coResponsaveis:[], compartilhamentosPendentes:[], compartilhamentoRejeitado:null,
+    origem:{ tipo:"rnc", correcao:true, rncId:r.id, rncSeq:r.sequencia }, correcoesRnc:[] };
+  DB.tarefasEngenharia.push(t);
+  return t;
+}
+// junta cartoes de RNC antigos (um por RNC) no cartao unico de correcao por pedido + lote + equipamento/peca
+function engUnificarCartoesRnc(){
+  if (nivelAcessoSetor("engenharia")==="visualizador") return false;
+  const lista = (DB.tarefasEngenharia||[]).filter(t=>!t.finalizada && !t.concluida && t.origem && t.origem.tipo==="rnc" && t.pedidoId && t.loteId);
+  const grupos = new Map();
+  for (const t of lista) { const k = t.pedidoId+"|"+t.loteId+"|"+(t.equipamentoRef||""); if (!grupos.has(k)) grupos.set(k, []); grupos.get(k).push(t); }
+  let mudou = false;
+  for (const g of grupos.values()) {
+    g.sort((a,b)=>a.id-b.id);
+    const host = g[0];
+    const itensDe = t=>{
+      if (Array.isArray(t.correcoesRnc) && t.correcoesRnc.length) return t.correcoesRnc;
+      const dem = t.origem.demandaId ? (DB.demandasEngRnc||[]).find(x=>x.id===t.origem.demandaId) : null;
+      return t.descricaoOrigem ? [{ id:"c"+t.id+"m", rncId:t.origem.rncId, rncSeq:t.origem.rncSeq, acaoId: dem ? dem.acaoId : null, texto:t.descricaoOrigem, responsavel:"", prazo:t.prazo||"", feita:false, feitaPor:null, feitaEm:null }] : [];
+    };
+    if (g.length===1 && host.origem.correcao) continue;
+    const itens = [];
+    for (const t of g) for (const c of itensDe(t)) if (!itens.some(x=>x.rncId===c.rncId && x.acaoId===c.acaoId && x.texto===c.texto)) itens.push(c);
+    host.correcoesRnc = itens;
+    host.origem = { tipo:"rnc", correcao:true, rncId:host.origem.rncId, rncSeq:host.origem.rncSeq };
+    host.titulo = engTituloCorrecao(host.equipamentoNome);
+    host.descricaoOrigem = "";
+    for (const outro of g.slice(1)) {
+      for (const d of (DB.demandasEngRnc||[])) if (d.tarefaId===outro.id) d.tarefaId = host.id;
+      removerDaColecao("tarefasEngenharia", x=>x.id!==outro.id);
+    }
+    mudou = true;
+  }
+  if (mudou) { limparCacheCalc(); saveDB(); }
+  return mudou;
 }
 function engNovaCorrecao(r, a){
   return { id:"c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6), rncId:r.id, rncSeq:r.sequencia, acaoId:a.id, texto:a.acao, responsavel:a.responsavel||"", prazo:a.prazo||"", feita:false, feitaPor:null, feitaEm:null };
@@ -9365,7 +9405,7 @@ function engSincronizarCorrecoesRnc(r, a){
     return true;
   }
   if (!pedLote || !ehEng) return false;
-  const alvo = engTarefaParaRnc(r); if (!alvo) return false;
+  const alvo = engCartaoCorrecao(r, true); if (!alvo) return false;
   if (!Array.isArray(alvo.correcoesRnc)) alvo.correcoesRnc = [];
   alvo.correcoesRnc.push(engNovaCorrecao(r, a));
   return true;
@@ -10107,10 +10147,11 @@ function showEngPage(name){
 document.querySelectorAll(".eng-navbtn").forEach(b=>b.addEventListener("click", ()=>showEngPage(b.dataset.engpage)));
 
 async function renderEngenharia(){
+  try { engUnificarCartoesRnc(); } catch(e) { console.error(e); }
   renderEngPendencias();
 
   const selPedido = document.getElementById("engNovaTarefaPedido");
-  selPedido.innerHTML = '<option value="">- selecione -</option>' + pedidosAbertos().map(p=>`<option value="${p.id}">${p.noPedido} - ${p.cliente||""}</option>`).join("");
+  selPedido.innerHTML = '<option value="">- sem pedido -</option>' + pedidosAbertos().map(p=>`<option value="${p.id}">${p.noPedido} - ${p.cliente||""}</option>`).join("");
   selPedido.onchange = popularEngNovaTarefaLote;
   popularEngNovaTarefaLote();
 
@@ -10133,7 +10174,7 @@ function popularEngNovaTarefaLote(){
   const pedidoId = parseInt(document.getElementById("engNovaTarefaPedido").value);
   const selLote = document.getElementById("engNovaTarefaLote");
   const lotes = pedidoId ? DB.lotes.filter(l=>l.pedidoId===pedidoId) : DB.lotes;
-  selLote.innerHTML = '<option value="">- selecione -</option>' + lotes.map(l=>`<option value="${l.id}">${l.noLote}</option>`).join("");
+  selLote.innerHTML = '<option value="">- sem lote -</option>' + lotes.map(l=>`<option value="${l.id}">${l.noLote}</option>`).join("");
   selLote.onchange = ()=>popularEquipTarefaEng("engNovaTarefaLote","engNovaTarefaEquip","");
   popularEquipTarefaEng("engNovaTarefaLote","engNovaTarefaEquip","");
 }
@@ -10141,7 +10182,7 @@ function popularEquipTarefaEng(loteSelId, equipSelId, valor){
   const loteId = parseInt(document.getElementById(loteSelId).value);
   const el = document.getElementById(equipSelId);
   const lote = DB.lotes.find(l=>l.id===loteId);
-  let html = '<option value="">- selecione -</option>';
+  let html = '<option value="">- sem equipamento/peca -</option>';
   if (lote) {
     html += (lote.equipamentoIds||[]).map(id=>{ const e=getEquipamento(id); return e ? `<option value="eq:${id}">${escaparHtmlPerfil(e.nome)}</option>` : ""; }).join("");
     html += DB.pecasAvulsas.filter(p=>p.loteId===lote.id).map(p=>`<option value="peca:${p.id}">${escaparHtmlPerfil(p.nome)} (peca/conjunto avulso)</option>`).join("");
@@ -10220,7 +10261,6 @@ function criarTarefaEngenharia(){
   const erro = t => { msgEl.innerHTML = `<span style="color:var(--danger);">${t}</span>`; };
   if (!titulo) return erro("Digite um titulo pra tarefa.");
   const equipamentoRef = document.getElementById("engNovaTarefaEquip").value || "";
-  if (!pedidoId || !loteId || !equipamentoRef) return erro("Selecione o pedido, o lote e o equipamento (ou peca/conjunto avulso).");
   const agora = new Date().toISOString();
 
   let prazo = null;
@@ -10813,7 +10853,8 @@ function engOrdenarPrioridade(lista){
 }
 function engRotuloOrigem(t){
   if (!t.origem) return "";
-  const txt = t.origem.tipo==="rnc" ? `RNC ${numRnc(t.origem.rncSeq||0)}` : (t.origem.tipo==="ppcp" ? "PPCP" : "");
+  const seqs = t.origem.correcao ? [...new Set((t.correcoesRnc||[]).map(c=>c.rncSeq).filter(Boolean))].sort((a,b)=>a-b) : [];
+  const txt = t.origem.tipo==="rnc" ? (seqs.length ? "RNC "+seqs.map(numRnc).join(", ") : `RNC ${numRnc(t.origem.rncSeq||0)}`) : (t.origem.tipo==="ppcp" ? "PPCP" : "");
   const aviso = t.origem.removidoDoPpcp ? `<div style="font-size:9px; font-weight:700; color:var(--danger); margin-top:2px;">&#9888; Item removido do PPCP &ndash; gestor decide se exclui</div>` : "";
   return (txt ? `<span style="display:inline-block; font-size:9px; font-weight:700; padding:1px 6px; border-radius:8px; background:#E8F3E3; color:var(--primary-dark); margin-left:3px;">${txt}</span>` : "") + aviso;
 }
@@ -11043,7 +11084,7 @@ function renderEngKanbanBoard(){
             ${sc==="desenho" ? `<div style="display:flex; gap:4px; margin:3px 0;"><input type="text" data-desenho-input="${t.id}" value="${escaparHtmlPerfil(t.numeroDesenho||"")}" ${somenteLeituraEng?"disabled":""} style="flex:1; min-width:0; font-size:10px;">${somenteLeituraEng?"":`<button type="button" class="btn btn-sm" data-desenho-salvar="${t.id}" style="font-size:9.5px; padding:3px 7px;">Salvar</button>`}</div>` : ""}
             ${somenteLeituraEng ? "" : `<div style="${sec}">${cab("responsavel","&#128100;","Responsavel")}${sc==="responsavel" ? `<select data-resp-select="${t.id}" style="width:100%; font-size:10px; margin-top:3px;"></select>${gestorAgora?"":'<div style="font-size:9px; color:#B7791F; margin-top:2px;">A troca so vale depois da aprovacao do gestor.</div>'}<div style="display:flex; gap:4px; margin:4px 0;"><button type="button" class="btn btn-sm" data-resp-salvar="${t.id}" style="flex:1; font-size:9.5px; padding:3px 7px;">${gestorAgora?"Alterar":"Solicitar troca"}</button><button type="button" class="btn secondary btn-sm" data-resp-colab="${t.id}" style="flex:1; font-size:9.5px; padding:3px 7px;">+ Colaborador</button></div>` : ""}</div>`}
             <div style="${sec}">${cab("checklist","&#9745;","Checklists")}${sc==="checklist" ? (chk || '<div class="muted" style="font-size:9.5px; margin:3px 0;">Nenhum checklist disponivel ainda.</div>') : ""}</div>
-            ${engCorrecoesRnc(t).length ? `<div style="${sec}">${cab("correcoes","&#128295;","Correcoes da RNC ("+(engCorrecoesRnc(t).length-engCorrecoesPendentes(t).length)+"/"+engCorrecoesRnc(t).length+")")}${sc==="correcoes" ? engCorrecoesHtml(t, somenteLeituraEng) : ""}</div>` : ""}
+            ${engCorrecoesRnc(t).length ? `<div style="${sec}">${cab("correcoes","&#128295;","Atividades em RNC ("(engCorrecoesRnc(t).length-engCorrecoesPendentes(t).length)+"/"+engCorrecoesRnc(t).length+")")}${sc==="correcoes" ? engCorrecoesHtml(t, somenteLeituraEng) : ""}</div>` : ""}
             <div style="${sec}">${cab("gut","&#127919;","Prioridade (GUT)")}${sc==="gut" ? engGutSelects(t) : ""}</div>
           </div>`;
         }
@@ -11053,7 +11094,7 @@ function renderEngKanbanBoard(){
             ${somenteLeituraEng ? "" : `<button type="button" class="acao-icon btn-leitura" data-toggle-menu-tarefa="${t.id}" title="Opcoes" style="flex-shrink:0; font-size:12px;">&#9998;</button>`}
           </div>
           <div style="margin-top:2px;">${engGutBadge(t)}</div>
-          ${engCorrecoesRnc(t).length ? `<div style="font-size:10px; margin-top:3px; color:${engCorrecoesPendentes(t).length?"#B7791F":"var(--ok)"};">&#128295; Correcoes da RNC: ${engCorrecoesRnc(t).length-engCorrecoesPendentes(t).length}/${engCorrecoesRnc(t).length}</div>` : ""}
+          ${engCorrecoesRnc(t).length ? `<div style="font-size:10px; margin-top:3px; color:${engCorrecoesPendentes(t).length?"#B7791F":"var(--ok)"};">&#128295; Atividades em RNC: ${engCorrecoesRnc(t).length-engCorrecoesPendentes(t).length}/${engCorrecoesRnc(t).length}</div>` : ""}
           <div class="menu-lote ${menuAberto?"":"hidden"}" data-menu-tarefa="${t.id}" style="font-size:12px;">
             ${somenteLeituraEng ? "" : `<button type="button" data-editar-tarefa="${t.id}">Editar</button>
             <button type="button" class="danger" data-excluir-tarefa="${t.id}">Excluir</button>`}
@@ -11426,7 +11467,7 @@ function moverTarefaEngenharia(tarefaId, colunaDestino){
   const faltando = [];
 
   if (colunaDestino === "aprovacao" && engCorrecoesPendentes(tarefa).length) {
-    alert(`Esta atividade ainda tem ${engCorrecoesPendentes(tarefa).length} correcao(oes) da RNC sem marcar como realizada. Abra Detalhes > Correcoes da RNC e marque cada uma quando estiver realmente feita.`);
+    alert(`Esta atividade ainda tem ${engCorrecoesPendentes(tarefa).length} correcao(oes) da RNC sem marcar como realizada. Abra Detalhes > Atividades em RNC e marque cada uma quando estiver realmente feita.`);
     renderEngKanban(); return;
   }
   if (!paraSuspensa && idxDestino > idxBase) {
