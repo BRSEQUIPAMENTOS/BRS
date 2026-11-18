@@ -255,6 +255,22 @@
   .lote-card details.lote-eqp { margin:6px 14px 12px; }
   .lote-card details.lote-eqp summary { cursor:pointer; font-size:12.5px; font-weight:700; color:var(--primary-dark); }
   .lote-card .lote-controles, .lote-card details.lote-pausas { margin-left:14px; margin-right:14px; }
+  .lote-max { padding:6px 14px 14px; }
+  .lote-max .lote-controles, .lote-max details.lote-pausas { margin-left:0; margin-right:0; }
+  .lote-resumo { display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
+  .lote-resumo span { background:#F1F6EE; border:1px solid #C9D6CB; border-radius:8px; padding:6px 14px; display:flex; flex-direction:column; min-width:120px; }
+  .lote-resumo small { font-size:10.5px; color:var(--muted,#6b7a6b); text-transform:uppercase; letter-spacing:.4px; }
+  .lote-resumo b { font-size:15px; color:#14462E; }
+  .lote-rodape { display:flex; gap:8px; justify-content:flex-end; margin-top:12px; padding-top:10px; border-top:1px solid #E1E8E1; }
+  .lote-menu { position:absolute; right:0; top:100%; z-index:30; background:#fff; border:1px solid #C9D6CB; border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,.15); min-width:150px; overflow:hidden; }
+  .lote-menu button { display:block; width:100%; text-align:left; padding:8px 12px; background:none; border:0; cursor:pointer; font-size:13px; }
+  .lote-menu button:hover { background:#F1F6EE; }
+  .lote-menu button.perigo { color:var(--danger,#B3261E); }
+  .lote-add-box { margin-top:8px; padding:10px; border:1px dashed #C9D6CB; border-radius:8px; background:#FAFBF9; }
+  .lote-validar { display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:12px; padding-top:10px; border-top:1px solid #E1E8E1; }
+  .lote-add-linha { display:flex; flex-wrap:wrap; gap:8px; align-items:flex-end; margin-bottom:8px; }
+  .lote-add-linha label { display:flex; flex-direction:column; font-size:12px; font-weight:600; gap:2px; }
+  .lote-add-linha select, .lote-add-linha input { min-width:240px; }
   .lote-card-OLD { border:1px solid var(--border); border-radius:8px; margin-bottom:8px; overflow:visible; background:#fff; }
   .lote-card-principal { display:flex; align-items:center; gap:12px; padding:10px 14px; }
   .lote-card-principal .no-lote { font-weight:700; min-width:56px; font-size:14px; color:var(--primary-dark); }
@@ -475,7 +491,7 @@
     </form>
     <div style="text-align:center; margin-top:8px;"><a href="#" id="loginEsqueciSenhaLink" style="font-size:12px; color:#8A8F87;">Esqueci minha senha</a></div>
     <div id="loginMsg" style="margin-top:10px; font-size:12.5px; min-height:18px;"></div>
-    <div style="margin-top:8px; font-size:10.5px; color:#9AA79F; text-align:center;">Versao 200 - 16/11/2026</div>
+    <div style="margin-top:8px; font-size:10.5px; color:#9AA79F; text-align:center;">Versao 211 - 18/11/2026</div>
     <div id="loginOfflineWrap" class="hidden" style="margin-top:6px;">
       <button id="loginOfflineBtn" style="width:100%; padding:8px; background:transparent; color:#8A8F87; border:1px solid #E1E6DE; border-radius:6px; font-size:12.5px; cursor:pointer;">Continuar sem conexao (usa os dados salvos neste navegador)</button>
     </div>
@@ -513,7 +529,7 @@
     <div style="height:3px; width:60px; background:#91C53E; border-radius:2px; margin-bottom:34px;"></div>
     <div id="painelPastasGrid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(172px, 1fr)); gap:14px;"></div>
     <div id="painelMinhasAtividades" style="margin-top:28px;"></div>
-    <p style="margin:30px 0 0; font-size:11px; color:#9AA79F;">Versao 200 - 16/11/2026</p>
+    <p style="margin:30px 0 0; font-size:11px; color:#9AA79F;">Versao 211 - 18/11/2026</p>
   </div>
 </div>
 
@@ -560,6 +576,7 @@
     <button class="gestao-navbtn active" data-gestaopage="indicadores">Indicadores (PPCP)</button>
     <button class="gestao-navbtn" data-gestaopage="qualidade">Indicadores da Qualidade</button>
     <button class="gestao-navbtn" data-gestaopage="acompanhamento">Acompanhamento de Pedido</button>
+    <button class="gestao-navbtn" data-gestaopage="fluxograma">Fluxograma</button>
     <button class="gestao-navbtn hidden" id="gestaoNavAtividades" data-gestaopage="atividades">Minhas Atividades (GUT)</button>
   </nav>
   <main class="main">
@@ -613,6 +630,25 @@
         </div>
         <div id="atvResumo" class="muted" style="font-size:12px; margin:8px 0;"></div>
         <div id="atvLista"></div>
+      </div>
+    </section>
+
+    <section id="gestaopage-fluxograma" class="page">
+      <div class="banner"><h1>Fluxograma do Pedido</h1><p>Fluxo geral do pedido por processo (raias). Filtre por processo, clique numa etapa para ver os detalhes e, se tiver permiss&atilde;o, edite.</p></div>
+      <div class="card">
+        <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:end; margin-bottom:8px;">
+          <div class="field" style="margin:0; min-width:260px;"><label class="field-label" for="fxFiltro">Visualiza&ccedil;&atilde;o</label><select id="fxFiltro"></select></div>
+          <button type="button" class="btn secondary btn-sm" id="fxImprimirBtn">&#128424; Imprimir / PDF</button>
+          <span id="fxAcoesEdicao" style="display:inline-flex; gap:8px; flex-wrap:wrap;"><button type="button" class="btn btn-sm" id="fxEditarBtn">&#9998; Editar fluxograma</button></span>
+        </div>
+        <div id="fxEdicaoBarra" class="hidden" style="gap:8px; flex-wrap:wrap; margin-bottom:8px; padding:8px; border:1px dashed #C9D6CB; border-radius:8px; background:#FAFBF9;">
+          <button type="button" class="btn btn-sm" id="fxAddBtn">+ Nova etapa</button>
+          <button type="button" class="btn secondary btn-sm" id="fxProcBtn">Gerenciar processos</button>
+          <button type="button" class="btn secondary btn-sm" id="fxResetBtn">Restaurar padr&atilde;o</button>
+        </div>
+        <div id="fxLegenda" style="margin-bottom:8px;"></div>
+        <div id="fxCanvas" style="overflow:auto; border:1px solid var(--border); border-radius:8px; background:#fff;"></div>
+        <div class="card" id="fxDetalhe" style="margin-top:10px;"></div>
       </div>
     </section>
 
@@ -1275,6 +1311,7 @@
     <button class="navbtn" data-page="lotes">Lotes</button>
     <button class="navbtn" data-page="itens">Itens do Lote</button>
     <button class="navbtn" data-page="custos">Custos</button>
+    <button class="navbtn" data-page="terceiros">Terceiros</button>
     <button class="navbtn" data-page="cadastro">Cadastro</button>
     <div class="param">
       <label>Dias de antecedencia do alerta</label>
@@ -1452,6 +1489,76 @@
         <button class="btn" id="salvarCustosBtn" style="margin-top:10px;">Salvar custos</button>
       </div>
       <div class="card"><h3>Custo total por Lote</h3><div id="tabelaCustoTotal"></div></div>
+    </section>
+
+    <section id="page-terceiros" class="page">
+      <div class="tabbar" id="tercAbas">
+        <button type="button" class="tabbtn active" data-terc-aba="lista">Requisi&ccedil;&otilde;es Registradas</button>
+        <button type="button" class="tabbtn" data-terc-aba="nova" data-edicao>Nova Requisi&ccedil;&atilde;o</button>
+      </div>
+      <div id="tercListaView">
+        <div class="banner"><h1>Envio de Material para Terceiros</h1><p>Requisi&ccedil;&atilde;o de envio/recebimento de material: o PPCP emite, a Produ&ccedil;&atilde;o separa, e o retorno &eacute; conferido aqui</p></div>
+        <div class="card">
+          <div style="display:flex; align-items:end; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+            <div class="field" style="margin:0;"><label class="field-label">Situa&ccedil;&atilde;o</label><select id="tercFiltroSit" class="input-leitura"><option value="andamento">Em andamento</option><option value="">Todas</option><option value="encerrada">Encerradas</option></select></div>
+            <div class="field" style="margin:0;"><label class="field-label">Fornecedor</label><select id="tercFiltroForn" class="input-leitura"></select></div>
+            <div class="field" style="margin:0;"><label class="field-label">Pedido</label><select id="tercFiltroPed" class="input-leitura"></select></div>
+          </div>
+          <div style="overflow-x:auto;"><table id="tercTabela"><tr><th>N&ordm;</th></tr></table></div>
+        </div>
+        <div class="card"><h4 style="margin-top:0;">Terceiros cadastrados</h4>
+          <div id="tercCadLista" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;"></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:end;" data-edicao>
+            <div class="field" style="margin:0;"><label class="field-label" for="tercCadNome">Novo terceiro / fornecedor</label><input type="text" id="tercCadNome" placeholder="Nome do terceiro" style="min-width:260px;"></div>
+            <button type="button" class="btn btn-sm" id="tercCadAddBtn">Adicionar</button>
+          </div>
+        </div>
+      </div>
+      <div id="tercFormView" class="hidden">
+        <div class="banner"><h1 id="tercFormTitulo">Nova requisi&ccedil;&atilde;o</h1><p>Envio e retorno de material para servi&ccedil;os de terceiros (galvaniza&ccedil;&atilde;o, usinagem, etc.)</p></div>
+        <div class="rnc-topo">
+          <div><strong style="font-size:15px;">REQUISI&Ccedil;&Atilde;O DE ENVIO/RECEBIMENTO DE MATERIAL DE TERCEIROS</strong></div>
+          <div style="text-align:right; font-size:13px;">N&ordm;: <strong id="tercNumeroTopo">-</strong><br><span class="muted" id="tercSitTopo"></span></div>
+        </div>
+        <div class="rnc-sec"><h3>1. IDENTIFICA&Ccedil;&Atilde;O</h3><div class="rnc-corpo"><div class="rnc-grid">
+          <div class="field"><label class="field-label" for="tercFilial">Filial</label><select id="tercFilial"><option>BRS</option><option>SEMEAR</option></select></div>
+          <div class="field"><label class="field-label" for="tercFornecedor">Fornecedor</label><select id="tercFornecedor"></select><a href="#" id="tercFornNovoLink" data-edicao style="font-size:12px;">+ cadastrar novo terceiro</a></div>
+          <div class="field"><label class="field-label" for="tercPedido">Pedido (opcional)</label><select id="tercPedido"></select></div>
+          <div class="field"><label class="field-label" for="tercData">Data</label><input type="date" id="tercData"></div>
+          <div class="field"><label class="field-label" for="tercPrevisao">Previs&atilde;o de retorno</label><input type="date" id="tercPrevisao"></div>
+          <div class="field"><label class="field-label" for="tercNfEnvio">NF envio</label><input type="text" id="tercNfEnvio"></div>
+        </div></div></div>
+        <div class="rnc-sec"><h3>2. ENVIO</h3><div class="rnc-corpo">
+          <p class="muted" style="margin:0 0 6px; font-size:12px;">Material que a Produ&ccedil;&atilde;o deve separar. O peso total &eacute; calculado (peso unit&aacute;rio &times; quantidade).</p>
+          <div style="overflow-x:auto;"><table id="tercItensTab" style="min-width:900px;"></table></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:6px;" data-edicao>
+            <button type="button" class="btn secondary btn-sm" id="tercAddItemBtn">+ Adicionar item</button>
+            <button type="button" class="btn secondary btn-sm" id="tercColarBtn" title="Cole linhas copiadas do Excel: C&oacute;d. pai, Material, C&oacute;digo, Quant., Dimens&atilde;o, Peso, OF">Colar do Excel</button>
+          </div>
+          <div id="tercColarBox" class="hidden" style="margin-top:8px;"><textarea id="tercColarTxt" rows="5" style="width:100%;" placeholder="Cole aqui as linhas do Excel (colunas: C&oacute;d. pai, Material, C&oacute;digo, Quant., Dimens&atilde;o, Peso, OF)"></textarea>
+            <button type="button" class="btn btn-sm" id="tercColarOkBtn">Importar linhas</button></div>
+        </div></div>
+        <div class="rnc-sec"><h3>3. RETORNO</h3><div class="rnc-corpo">
+          <p class="muted" style="margin:0 0 6px; font-size:12px;">Ap&oacute;s o envio, registre aqui o retorno. A OF do retorno &eacute; diferente da OF de envio.</p>
+          <div class="rnc-grid" style="margin-bottom:8px;"><div class="field"><label class="field-label" for="tercNfRetorno">NF retorno</label><input type="text" id="tercNfRetorno"></div></div>
+          <div style="overflow-x:auto;"><table id="tercRetornoTab" style="min-width:760px;"></table></div>
+        </div></div>
+        <div class="rnc-sec"><h3>4. OBSERVA&Ccedil;&Atilde;O E ASSINATURAS</h3><div class="rnc-corpo"><div class="rnc-grid">
+          <div class="field" style="grid-column:1/-1;"><label class="field-label" for="tercObs">Observa&ccedil;&atilde;o</label><textarea id="tercObs" rows="3"></textarea></div>
+          <div class="field"><label class="field-label">Solicitante</label><input type="text" id="tercSolicitante" readonly style="background:#F4F7F2;"></div>
+          <div class="field"><label class="field-label" for="tercSolData">Data</label><input type="date" id="tercSolData"></div>
+          <div class="field"><label class="field-label" for="tercSepNome">Separa&ccedil;&atilde;o (nome)</label><input type="text" id="tercSepNome"></div>
+          <div class="field"><label class="field-label" for="tercSepData">Data</label><input type="date" id="tercSepData"></div>
+          <div class="field"><label class="field-label" for="tercRecNome">Recebimento (nome)</label><input type="text" id="tercRecNome"></div>
+          <div class="field"><label class="field-label" for="tercRecData">Data</label><input type="date" id="tercRecData"></div>
+        </div></div></div>
+        <div id="tercMsg" style="margin:8px 0;"></div>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:30px;">
+          <button type="button" class="btn" id="tercSalvarBtn" data-edicao>Salvar</button>
+          <button type="button" class="btn secondary" id="tercImprimirBtn">&#128424; Visualizar / imprimir</button>
+          <button type="button" class="btn secondary" id="tercVoltarBtn">Voltar &agrave; lista</button>
+        </div>
+      </div>
     </section>
 
     <!-- ============================= CADASTRO ============================= -->
@@ -1761,7 +1868,8 @@ function seedData(){
                funcionariosEngenharia:[], tarefasEngenharia:[], perfis:{}, acessosUsuarios:{}, acessosMigrados:true,
                configEngenharia: { horaInicio:null, horaSaidaIntervalo:null, horaRetornoIntervalo:null, horaEncerramento:null },
                settings:{alertaDias:5},
-               seq:{atividadeAcomp:1,equipamento:1,item:1,pedido:1,lote:1,itemLote:1,pecaAvulsa:1,itemAvulso:1,statusPedido:1,cargaExpedicao:1,checklistInstancia:1,tarefaEngenharia:1} };
+               enviosTerceiros:[], terceirosCadastro:["BMI Galvanizacao","Carlao"],
+               seq:{envioTerceiros:1,atividadeAcomp:1,equipamento:1,item:1,pedido:1,lote:1,itemLote:1,pecaAvulsa:1,itemAvulso:1,statusPedido:1,cargaExpedicao:1,checklistInstancia:1,tarefaEngenharia:1} };
   const itensPorEquip = itensCompletosPorEquipamento();
   const eqIds = {};
   for (const eq of EQUIPAMENTOS) {
@@ -1898,6 +2006,7 @@ function normalizarDB(db){
   if (!db.seq.atividadeAcomp) db.seq.atividadeAcomp = db.atividadesAcomp.reduce((m,x)=>Math.max(m,x.id||0),0) + 1;
   if (!db.setoresGestao) db.setoresGestao = ["Comercial","Layout","Engenharia","PPCP","Qualidade","Producao","Almoxarifado","Assistencia Tecnica","Expedicao"];
   if (!db.acessoGestao) db.acessoGestao = [];
+  if (!db.fluxograma || !Array.isArray(db.fluxograma.nodes)) db.fluxograma = fluxoPadrao();
   if (!db.cargasExpedicao) db.cargasExpedicao = [];
   if (!db.seq.cargaExpedicao) db.seq.cargaExpedicao = (db.cargasExpedicao.reduce((m,c)=>Math.max(m,c.id),0)) + 1;
   if (!db.checklistsVinculados) db.checklistsVinculados = {};
@@ -1925,11 +2034,15 @@ function normalizarDB(db){
   if (!db.checklistInstancias) db.checklistInstancias = [];
   if (!db.rncs) db.rncs = [];
   if (!Array.isArray(db.rncsExcluidas)) db.rncsExcluidas = [];
+  if (!Array.isArray(db.enviosTerceiros)) db.enviosTerceiros = [];
+  if (!Array.isArray(db.terceirosCadastro)) db.terceirosCadastro = ["BMI Galvanizacao","Carlao"];
+  for (const ev of db.enviosTerceiros) { const f=(ev.fornecedor||"").trim(); if (f && !db.terceirosCadastro.some(n=>n.toLowerCase()===f.toLowerCase())) db.terceirosCadastro.push(f); }
   if (!db.demandasEngRnc) db.demandasEngRnc = [];
   if (!db.removidosEm || typeof db.removidosEm !== "object") db.removidosEm = {};
   const maxTomb = (k)=>Math.max(0, ...((db.removidos && db.removidos[k]) || []));
   db.seq.rnc = Math.max(db.seq.rnc||0, db.rncs.reduce((m,x)=>Math.max(m,x.id||0),0)+1, maxTomb("rncs")+1);
   db.seq.rncNumero = Math.max(db.seq.rncNumero||0, db.rncs.reduce((m,x)=>Math.max(m,x.sequencia||0),0)+1);
+  db.seq.envioTerceiros = Math.max(db.seq.envioTerceiros||1, db.enviosTerceiros.reduce((m,x)=>Math.max(m,x.id||0),0)+1);
   db.seq.demandaEngRnc = Math.max(db.seq.demandaEngRnc||0, db.demandasEngRnc.reduce((m,x)=>Math.max(m,x.id||0),0)+1, maxTomb("demandasEngRnc")+1);
   if (!db.atividadesGestor) db.atividadesGestor = [];
   if (!db.seq.atividadeGestor) db.seq.atividadeGestor = db.atividadesGestor.reduce((m,x)=>Math.max(m,x.id||0),0) + 1;
@@ -2136,7 +2249,7 @@ async function buscarLinhaNuvem(){
 }
 
 // colecoes em que os registros de pessoas diferentes sao somados (nunca sobrescritos) quando dois aparelhos salvam ao mesmo tempo
-const COLECOES_MESCLAVEIS = ["rncs", "tarefasEngenharia", "checklistInstancias", "atividadesGestor", "demandasEngRnc", "atividadesAcomp"];
+const COLECOES_MESCLAVEIS = ["rncs", "tarefasEngenharia", "checklistInstancias", "atividadesGestor", "demandasEngRnc", "atividadesAcomp", "enviosTerceiros"];
 function logAcompanhamento(evento, tipo, descricao, pedidoId){
   if (!Array.isArray(DB.logAcomp)) DB.logAcomp = [];
   const agora = new Date().toISOString();
@@ -2211,7 +2324,7 @@ function mesclarDados(nuvem, local){
       if (igual && item.criadoEm && igual.criadoEm && item.criadoEm !== igual.criadoEm) {
         // mesmo numero de id criado em dois aparelhos ao mesmo tempo: o do aparelho atual ganha um id novo
         const novo = Object.assign({}, item, { id: ++maxId });
-        if (chave === "rncs") novo.sequencia = [...a, ...b, ...res].reduce((m,x)=>Math.max(m, x.sequencia||0), 0) + 1;
+        if (chave === "rncs" || chave === "enviosTerceiros") novo.sequencia = [...a, ...b, ...res].reduce((m,x)=>Math.max(m, x.sequencia||0), 0) + 1;
         res.push(novo);
       } else res.push(item);
     }
@@ -2236,6 +2349,7 @@ function mesclarDados(nuvem, local){
     out.seq.rnc = Math.max(out.seq.rnc||0, (maxIdPorChave.rncs||0)+1);
     out.seq.atividadeAcomp = Math.max(out.seq.atividadeAcomp||0, (maxIdPorChave.atividadesAcomp||0)+1);
     out.seq.demandaEngRnc = Math.max(out.seq.demandaEngRnc||0, (maxIdPorChave.demandasEngRnc||0)+1);
+    out.seq.envioTerceiros = Math.max(out.seq.envioTerceiros||0, (maxIdPorChave.enviosTerceiros||0)+1);
     out.seq.rncNumero = Math.max(out.seq.rncNumero||0, (out.rncs||[]).reduce((m,x)=>Math.max(m,x.sequencia||0),0)+1);
   }
   { // log de acompanhamento: uniao dos dois lados
@@ -2704,18 +2818,20 @@ function intervalosPausaLote(lote, hoje){
   }
   return out;
 }
+const PAUSA_LOTE_ATIVA = false;   // recurso de pausar lote desligado por enquanto (os dados salvos em lote.pausas sao preservados)
 function diasPausadosLote(lote, hoje){
+  if (!PAUSA_LOTE_ATIVA) return 0;
   return intervalosPausaLote(lote, hoje).reduce((t,[x,y])=>t+diffDays(y,x),0);
 }
 function diasPausaEntre(lote, a, b, hoje){   // dias de pausa do lote que caem dentro de [a,b]
-  let t = 0;
+  let t = 0; if (!PAUSA_LOTE_ATIVA) return 0;
   for (const [x,y] of intervalosPausaLote(lote, hoje)) {
     const ini = x>a ? x : a, fim = y<b ? y : b;
     if (fim>ini) t += diffDays(fim, ini);
   }
   return t;
 }
-function lotePausadoAgora(lote){ return (lote.pausas||[]).some(p=>p && p.inicio && !p.fim); }
+function lotePausadoAgora(lote){ return PAUSA_LOTE_ATIVA && (lote.pausas||[]).some(p=>p && p.inicio && !p.fim); }
 // previsao de entrega de um item: conta do inicio do desenvolvimento (ou da solicitacao) + prazo + pausas do lote
 function calcularPrevisaoItem(lote, dataBase, prazoDias, hoje){
   if (!dataBase) return null;
@@ -2958,13 +3074,39 @@ function calcularStatusItemBruto(lote, itemLoteRow, alertaDias, hoje){
   }
   const alertaPrereq = pendentes.length ? "Aguardando: "+pendentes.join(", ") : "";
 
-  return { dataPrevista, dataLimiteSolicitacao, diasRestantes, status, alertaPrerequisito:alertaPrereq, prazoAcumulado };
+  // Separacao dos atrasos: EXECUCAO (o item estourou o proprio prazo) x PEDIDO (o item esta dentro do seu prazo, mas o prazo final do pedido nao comporta)
+  let atrasoExecucao = false, diasAtrasoExec = 0, atrasoPedido = false, diasAtrasoPedido = 0;
+  if (dReal) {
+    if (dataPrevista && dReal > dataPrevista) { atrasoExecucao = true; diasAtrasoExec = Math.abs(diffDays(dataPrevista, dReal)); }
+  } else if ((dIni||dSol) && dataPrevista && hoje > dataPrevista) {
+    atrasoExecucao = true; diasAtrasoExec = Math.abs(diffDays(dataPrevista, hoje));
+  }
+  if (!dReal && dataLimiteLote) {
+    const fimProj = (dIni||dSol) ? dataPrevista : calcularPrevisaoItem(lote, hoje, prazoDias, hoje);
+    const folga = folgaApos||0;
+    if (fimProj) {
+      const fimComSeguintes = addDays(fimProj, folga);
+      if (fimComSeguintes > dataLimiteLote) { atrasoPedido = true; diasAtrasoPedido = Math.abs(diffDays(dataLimiteLote, fimComSeguintes)); }
+    }
+  }
+  return { dataPrevista, dataLimiteSolicitacao, diasRestantes, status, alertaPrerequisito:alertaPrereq, prazoAcumulado, atrasoExecucao, diasAtrasoExec, atrasoPedido, diasAtrasoPedido };
 }
 
 // lote so conta como atrasado/urgente quando o prazo de entrega do pedido ja passou (ou nao ha prazo definido)
 function prazoLoteVencidoOuIndefinido(lote, hoje){
   const {dataLimite} = calcularDataLimiteLote(lote);
   return !dataLimite || hoje > dataLimite;
+}
+function itensProblemaDashHtml(lista){
+  if (!lista || !lista.length) return '<span class="muted">-</span>';
+  const ord = lista.slice().sort((a,b)=>(a.status==="CRITICO - SOLICITAR URGENTE"||a.status==="ATRASADO"?0:1)-(b.status==="CRITICO - SOLICITAR URGENTE"||b.status==="ATRASADO"?0:1));
+  const rot = i=>{
+    const atras = i.status==="CRITICO - SOLICITAR URGENTE" || i.status==="ATRASADO";
+    const cor = atras ? "var(--danger)" : "var(--warning)";
+    const tipo = i.status==="ATRASADO" ? (i.exec?"execucao atrasada":"atrasado") : i.status==="CRITICO - SOLICITAR URGENTE" ? "solicitar ja" : i.status==="PREPARAR - SOLICITAR EM BREVE" ? "solicitar em breve" : "prazo proximo";
+    return `<div style="font-size:12px; white-space:nowrap;"><span style="color:${cor}; font-weight:700;">&#9679;</span> ${escaparHtmlPerfil(i.nome)} <span class="muted">(${tipo})</span></div>`;
+  };
+  return ord.slice(0,4).map(rot).join("") + (ord.length>4 ? `<div class="muted" style="font-size:11px;">+ ${ord.length-4} item(ns)</div>` : "");
 }
 function calcularStatusLote(lote, alertaDias, hoje){
   hoje = hoje || hojeUTC();
@@ -2973,20 +3115,20 @@ function calcularStatusLote(lote, alertaDias, hoje){
   const itensAvulsosRastreados = pecasDoLote.flatMap(p=>DB.itensAvulsos.filter(i=>i.pecaAvulsaId===p.id && i.rastrear!==false));
   const total = itensLoteMap.size + itensAvulsosRastreados.length;
   if (total===0) return {status:"SEM ITENS CADASTRADOS", proxima:null, dias:null};
-  let urgentes=0, concluidos=0, atencao=0; const proximas=[];
+  let urgentes=0, concluidos=0, atencao=0; const proximas=[]; const itensProblema=[];
   for (const row of itensLoteMap.values()) {
     const r = calcularStatusItem(lote, row, alertaDias, hoje);
     if (r.status.startsWith("CONCLUIDO")) concluidos++;
-    else if (r.status==="CRITICO - SOLICITAR URGENTE" || r.status==="ATRASADO") urgentes++;
-    else if (r.status==="PREPARAR - SOLICITAR EM BREVE" || r.status==="ATENCAO - PRAZO PROXIMO") atencao++;
+    else if (r.status==="CRITICO - SOLICITAR URGENTE" || r.status==="ATRASADO") { urgentes++; itensProblema.push({nome:(getItem(row.itemId)||{}).nome||"?", status:r.status, exec:r.atrasoExecucao, ped:r.atrasoPedido, dias:r.diasRestantes}); }
+    else if (r.status==="PREPARAR - SOLICITAR EM BREVE" || r.status==="ATENCAO - PRAZO PROXIMO") { atencao++; itensProblema.push({nome:(getItem(row.itemId)||{}).nome||"?", status:r.status, exec:r.atrasoExecucao, ped:r.atrasoPedido, dias:r.diasRestantes}); }
     const d = row.dataSolicitacao ? r.dataPrevista : r.dataLimiteSolicitacao;
     if (d && !r.status.startsWith("CONCLUIDO")) proximas.push(d);
   }
   for (const ia of itensAvulsosRastreados) {
     const r = calcularStatusItemAvulso(lote, ia, alertaDias, hoje);
     if (r.status.startsWith("CONCLUIDO")) concluidos++;
-    else if (r.status==="CRITICO - SOLICITAR URGENTE" || r.status==="ATRASADO") urgentes++;
-    else if (r.status==="PREPARAR - SOLICITAR EM BREVE" || r.status==="ATENCAO - PRAZO PROXIMO") atencao++;
+    else if (r.status==="CRITICO - SOLICITAR URGENTE" || r.status==="ATRASADO") { urgentes++; itensProblema.push({nome:ia.itemNome, status:r.status, dias:r.diasRestantes}); }
+    else if (r.status==="PREPARAR - SOLICITAR EM BREVE" || r.status==="ATENCAO - PRAZO PROXIMO") { atencao++; itensProblema.push({nome:ia.itemNome, status:r.status, dias:r.diasRestantes}); }
     const d = ia.dataSolicitacao ? r.dataPrevista : r.dataLimiteSolicitacao;
     if (d && !r.status.startsWith("CONCLUIDO")) proximas.push(d);
   }
@@ -2995,7 +3137,7 @@ function calcularStatusLote(lote, alertaDias, hoje){
   status = cl.status;
   let proxima=null; if (proximas.length) proxima = new Date(Math.min(...proximas.map(d=>d.getTime())));
   const dias = proxima ? diffDays(proxima, hoje) : null;
-  return {status, proxima, dias, tipos: cl.tipos};
+  return {status, proxima, dias, tipos: cl.tipos, itensProblema};
 }
 
 /* =====================================================================
@@ -3064,13 +3206,220 @@ function preencherCabecalhosSidebars(){
 }
 document.querySelectorAll(".sb-logout").forEach(a=>a.addEventListener("click", (e)=>{ e.preventDefault(); fazerLogout(); }));
 
+/* =====================================================================
+   GESTAO - FLUXOGRAMA (geral do pedido, filtravel por processo, editavel)
+   ===================================================================== */
+function fluxoPadrao(){
+  const P = [
+    {id:"comercial", nome:"Comercial", cor:"#6A1B9A"}, {id:"ppcp", nome:"PPCP", cor:"#1F6C47"},
+    {id:"eng", nome:"Engenharia", cor:"#1565C0"}, {id:"compras", nome:"Compras / Almoxarifado", cor:"#E65100"},
+    {id:"terc", nome:"Terceiros", cor:"#00838F"}, {id:"prod", nome:"Produção", cor:"#558B2F"},
+    {id:"qual", nome:"Qualidade", cor:"#C62828"}, {id:"exp", nome:"Expedição", cor:"#4E342E"}];
+  const N = (id,nome,processo,preds,extra)=>Object.assign({id,nome,processo,preds,prazo:null,resp:"",obs:"",itemCat:""}, extra||{});
+  const nodes = [
+    N("ped","Fechamento do pedido e dados do cliente","comercial",[]),
+    N("cad","Cadastro do pedido (prazo, rede, cor)","ppcp",["ped"],{obs:"Aba Pedidos do PPCP."}),
+    N("lotes","Criação dos lotes e ordem de desenvolvimento","ppcp",["cad"],{obs:"Aba Lotes do PPCP: ordem, prazo do lote e limite de entrega."}),
+    N("sol","Solicitação dos itens (data limite)","ppcp",["lotes"],{obs:"Aba Itens do Lote: o PPCP registra a data de solicitação de cada item."}),
+    N("dev","Desenvolvimento Engenharia","eng",["sol"],{itemCat:"Desenvolvimento Engenharia",obs:"Atividades da Engenharia; RNCs vinculadas entram como correção."}),
+    N("est","Estrutura de Produto","eng",["dev"],{itemCat:"Estrutura de Produto"}),
+    N("nest","Nesting","eng",["est"],{itemCat:"Nesting"}),
+    N("mapa","Mapa de Compras","ppcp",["est"],{itemCat:"Mapa de Compras"}),
+    N("comp","Compras (matéria-prima, motorredutor, componentes)","compras",["mapa"],{itemCat:"Compra Materia-prima"}),
+    N("rec","Recebimento de material (Almoxarifado)","compras",["comp"]),
+    N("septerc","Requisição de envio para terceiros","ppcp",["mapa"],{obs:"Aba Terceiros do PPCP: o PPCP emite, a Produção separa."}),
+    N("terc","Usinagem, emborrachamento, pintura e corte a laser","terc",["septerc"],{itemCat:"Usinagem"}),
+    N("retterc","Retorno e conferência do material de terceiros","terc",["terc"],{obs:"OF de retorno diferente da OF de envio."}),
+    N("fab","Fabricação","prod",["nest","rec"],{itemCat:"Fabricacao"}),
+    N("mont","Montagem interna","prod",["fab","retterc","rec"],{itemCat:"Montagem Interna"}),
+    N("insp","Inspeção de qualidade (checklist)","qual",["mont"]),
+    N("rnc","RNC e retrabalho (se houver não conformidade)","qual",["insp"],{obs:"A RNC vinculada a pedido/lote/equipamento volta como correção na Engenharia/Produção."}),
+    N("emb","Embalagem e checklist de carga","exp",["insp"]),
+    N("carga","Carregamento e expedição","exp",["emb"]),
+    N("ent","Entrega ao cliente","exp",["carga"]),
+    N("enc","Encerramento do lote / pedido","ppcp",["carga"]),
+  ];
+  return {processos:P, nodes, versao:1, atualizadoEm:null};
+}
+let fluxoFiltro = "", fluxoEditando = false, fluxoSel = null;
+function fluxoPodeEditar(){ const n = nivelAcessoSetor("gestao"); return n==="editor" || n==="gestor"; }
+function fluxoGarantir(){ if (!DB.fluxograma || !Array.isArray(DB.fluxograma.nodes)) DB.fluxograma = fluxoPadrao(); return DB.fluxograma; }
+function fluxoPrazoNo(n){
+  if (n.prazo!=null && n.prazo!=="") return {dias:Number(n.prazo), origem:"manual"};
+  if (n.itemCat) { const v = DB.itens.filter(i=>i.nome===n.itemCat).map(i=>i.prazoDias).filter(x=>x>0); if (v.length) return {dias:Math.round(v.reduce((a,b)=>a+b,0)/v.length), origem:"cadastro"}; }
+  return null;
+}
+function fluxoNiveis(nodes){
+  const mapa = new Map(nodes.map(n=>[n.id,n])); const nivel = new Map();
+  const calc = (id, pilha)=>{
+    if (nivel.has(id)) return nivel.get(id);
+    if (pilha.has(id)) return 0;
+    pilha.add(id); const n = mapa.get(id); let m = 0;
+    for (const p of (n.preds||[])) if (mapa.has(p)) m = Math.max(m, calc(p, pilha)+1);
+    pilha.delete(id); nivel.set(id, m); return m;
+  };
+  nodes.forEach(n=>calc(n.id, new Set()));
+  return nivel;
+}
+function fluxoSvg(){
+  const F = fluxoGarantir(); const todos = F.nodes; const procs = F.processos;
+  const mapaProc = new Map(procs.map(p=>[p.id,p]));
+  const niv = fluxoNiveis(todos);
+  let vis, externos = new Set();
+  if (fluxoFiltro) {
+    vis = todos.filter(n=>n.processo===fluxoFiltro);
+    const ids = new Set(vis.map(n=>n.id));
+    for (const n of todos) {
+      if (ids.has(n.id)) continue;
+      if ((n.preds||[]).some(p=>ids.has(p)) || vis.some(v=>(v.preds||[]).includes(n.id))) externos.add(n.id);
+    }
+    todos.filter(n=>externos.has(n.id)).forEach(n=>vis.push(n));
+  } else vis = todos.slice();
+  const usados = [...new Set(vis.map(n=>niv.get(n.id)))].sort((a,b)=>a-b);
+  const col = new Map(usados.map((l,i)=>[l,i]));
+  const W = 176, H = 50, GX = 56, GY = 14, PADL = 150, PADT = 16;
+  const lanes = fluxoFiltro ? [fluxoFiltro, ...(externos.size?["__ext"]:[])] : procs.map(p=>p.id).filter(id=>vis.some(n=>n.processo===id));
+  const laneDe = n => (fluxoFiltro && externos.has(n.id)) ? "__ext" : n.processo;
+  const slot = new Map(); const laneMax = new Map(); const cont = new Map();
+  for (const n of vis.slice().sort((a,b)=>todos.indexOf(a)-todos.indexOf(b))) {
+    const ln = laneDe(n), c = col.get(niv.get(n.id)); const k = ln+"|"+c; const s = cont.get(k)||0; cont.set(k, s+1);
+    slot.set(n.id, s); laneMax.set(ln, Math.max(laneMax.get(ln)||1, s+1));
+  }
+  const laneY = new Map(); let y = PADT;
+  for (const ln of lanes) { laneY.set(ln, y); y += (laneMax.get(ln)||1)*(H+GY)+GY; }
+  const totalH = y + 4, totalW = PADL + usados.length*(W+GX);
+  const pos = new Map();
+  for (const n of vis) { const ln = laneDe(n); pos.set(n.id, {x: PADL + col.get(niv.get(n.id))*(W+GX), y: laneY.get(ln) + GY + slot.get(n.id)*(H+GY)}); }
+  const x = escaparHtmlPerfil;
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" width="${totalW}" height="${totalH}" viewBox="0 0 ${totalW} ${totalH}" style="font-family:Arial,Helvetica,sans-serif;">
+    <defs><marker id="fxSeta" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#5b6b5b"/></marker></defs>`;
+  lanes.forEach((ln,i)=>{
+    const p = ln==="__ext" ? {nome:"Outros processos (ligações)", cor:"#78909C"} : mapaProc.get(ln) || {nome:ln, cor:"#888"};
+    const h = (laneMax.get(ln)||1)*(H+GY)+GY;
+    s += `<rect x="0" y="${laneY.get(ln)}" width="${totalW}" height="${h}" fill="${i%2?"#F7FAF5":"#FFFFFF"}" stroke="#C9D6CB"/>`+
+         `<rect x="0" y="${laneY.get(ln)}" width="${PADL-12}" height="${h}" fill="${p.cor}" opacity=".92"/>`+
+         `<foreignObject x="4" y="${laneY.get(ln)}" width="${PADL-20}" height="${h}"><div xmlns="http://www.w3.org/1999/xhtml" style="height:${h}px;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff;font-weight:700;font-size:12px;">${x(p.nome)}</div></foreignObject>`;
+  });
+  const ids = new Set(vis.map(n=>n.id));
+  for (const n of vis) for (const pr of (n.preds||[])) {
+    if (!ids.has(pr)) continue; const a = pos.get(pr), b = pos.get(n.id); if (!a||!b) continue;
+    const x1 = a.x+W, y1 = a.y+H/2, x2 = b.x, y2 = b.y+H/2; const mx = (x1+x2)/2;
+    const dash = (fluxoFiltro && (externos.has(pr)||externos.has(n.id))) ? ' stroke-dasharray="4 3"' : "";
+    s += `<path d="M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2-1},${y2}" fill="none" stroke="#5b6b5b" stroke-width="1.4"${dash} marker-end="url(#fxSeta)"/>`;
+  }
+  for (const n of vis) {
+    const p = pos.get(n.id), pr = mapaProc.get(n.processo) || {cor:"#888", nome:n.processo}; const ext = fluxoFiltro && externos.has(n.id);
+    const pz = fluxoPrazoNo(n); const sel = fluxoSel===n.id;
+    s += `<g class="fx-no" data-fx-no="${x(n.id)}" style="cursor:pointer;" opacity="${ext?0.6:1}">
+      <rect x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="8" fill="${ext?"#ECEFF1":"#fff"}" stroke="${sel?"#000":pr.cor}" stroke-width="${sel?3:1.8}"/>
+      <rect x="${p.x}" y="${p.y}" width="6" height="${H}" rx="3" fill="${pr.cor}"/>
+      <foreignObject x="${p.x+9}" y="${p.y+1}" width="${W-12}" height="${H-2}"><div xmlns="http://www.w3.org/1999/xhtml" style="height:${H-2}px;display:flex;flex-direction:column;justify-content:center;font-size:10.5px;line-height:1.15;color:#1b2b1b;overflow:hidden;"><b>${x(n.nome)}</b>${(ext||fluxoFiltro===""?"":"")}${pz?`<span style="color:#5b6b5b;font-size:9.5px;">prazo ${pz.dias}d</span>`:""}${ext?`<span style="color:#5b6b5b;font-size:9.5px;">${x(pr.nome)}</span>`:""}</div></foreignObject></g>`;
+  }
+  return s + "</svg>";
+}
+function fluxoDetalheHtml(){
+  const F = fluxoGarantir(); const n = F.nodes.find(z=>z.id===fluxoSel); if (!n) return '<p class="muted" style="margin:0;">Clique em uma etapa do fluxograma para ver os detalhes.</p>';
+  const x = escaparHtmlPerfil; const pr = F.processos.find(p=>p.id===n.processo)||{nome:n.processo};
+  const antes = (n.preds||[]).map(i=>F.nodes.find(z=>z.id===i)).filter(Boolean), depois = F.nodes.filter(z=>(z.preds||[]).includes(n.id));
+  const pz = fluxoPrazoNo(n);
+  if (!fluxoEditando) return `<h4 style="margin:0 0 6px;">${x(n.nome)}</h4>
+    <div class="lote-resumo"><span><small>Processo</small><b>${x(pr.nome)}</b></span><span><small>Prazo</small><b>${pz?pz.dias+" dias":"-"}</b>${pz&&pz.origem==="cadastro"?'<small>média do cadastro</small>':""}</span><span><small>Responsável</small><b>${x(n.resp||"-")}</b></span></div>
+    <p style="margin:8px 0 2px;"><b>Depende de:</b> ${antes.length?antes.map(a=>x(a.nome)).join("; "):"<span class='muted'>início do fluxo</span>"}</p>
+    <p style="margin:2px 0;"><b>Libera:</b> ${depois.length?depois.map(a=>x(a.nome)).join("; "):"<span class='muted'>fim do fluxo</span>"}</p>
+    ${n.obs?`<p style="margin:6px 0 0;"><b>Observação:</b> ${x(n.obs)}</p>`:""}`;
+  const outros = F.nodes.filter(z=>z.id!==n.id);
+  return `<h4 style="margin:0 0 8px;">Editar etapa</h4><div class="grid grid-3">
+    <div class="field"><label class="field-label">Nome</label><input type="text" id="fxNome" value="${x(n.nome)}"></div>
+    <div class="field"><label class="field-label">Processo</label><select id="fxProc">${F.processos.map(p=>`<option value="${x(p.id)}" ${p.id===n.processo?"selected":""}>${x(p.nome)}</option>`).join("")}</select></div>
+    <div class="field"><label class="field-label">Prazo (dias) <span class="muted">vazio = cadastro</span></label><input type="number" min="0" id="fxPrazo" value="${n.prazo!=null&&n.prazo!==""?n.prazo:""}"></div>
+    <div class="field"><label class="field-label">Responsável</label><input type="text" id="fxResp" value="${x(n.resp||"")}"></div>
+    <div class="field" style="grid-column:span 2;"><label class="field-label">Observação</label><input type="text" id="fxObs" value="${x(n.obs||"")}"></div></div>
+    <div class="field"><label class="field-label">Depende de (marque as etapas anteriores)</label><div style="display:flex;flex-wrap:wrap;gap:4px 14px;max-height:140px;overflow:auto;border:1px solid var(--border);border-radius:6px;padding:6px;">${outros.map(o=>`<label style="font-size:12px;display:flex;gap:4px;align-items:center;"><input type="checkbox" class="fx-pred" value="${x(o.id)}" ${(n.preds||[]).includes(o.id)?"checked":""}>${x(o.nome)}</label>`).join("")}</div></div>
+    <div style="display:flex;gap:8px;margin-top:8px;"><button type="button" class="btn btn-sm" id="fxSalvar">Salvar etapa</button><button type="button" class="btn danger btn-sm" id="fxExcluir">Excluir etapa</button></div>`;
+}
+function fluxoCicloCom(nodes, id, preds){
+  // true se, com os novos predecessores, a etapa passar a depender de si mesma
+  const mapa = new Map(nodes.map(n=>[n.id, n===undefined?[]:(n.id===id?preds:(n.preds||[]))]));
+  const vis = new Set(); const pilha = [...preds];
+  while (pilha.length) { const a = pilha.pop(); if (a===id) return true; if (vis.has(a)) continue; vis.add(a); (mapa.get(a)||[]).forEach(p=>pilha.push(p)); }
+  return false;
+}
+function renderFluxograma(){
+  const F = fluxoGarantir(); const pode = fluxoPodeEditar();
+  if (!pode) fluxoEditando = false;
+  const sel = document.getElementById("fxFiltro");
+  sel.innerHTML = '<option value="">Fluxograma geral (todos os processos)</option>' + F.processos.map(p=>`<option value="${escaparHtmlPerfil(p.id)}">${escaparHtmlPerfil(p.nome)}</option>`).join("");
+  if (!F.processos.some(p=>p.id===fluxoFiltro)) fluxoFiltro = "";
+  sel.value = fluxoFiltro; sel.onchange = ()=>{ fluxoFiltro = sel.value; renderFluxograma(); };
+  document.getElementById("fxLegenda").innerHTML = F.processos.map(p=>`<span class="pill" style="background:${p.cor};cursor:pointer;opacity:${!fluxoFiltro||fluxoFiltro===p.id?1:.45};" data-fx-leg="${escaparHtmlPerfil(p.id)}">${escaparHtmlPerfil(p.nome)}</span>`).join(" ");
+  document.querySelectorAll("[data-fx-leg]").forEach(b=>b.onclick = ()=>{ fluxoFiltro = fluxoFiltro===b.dataset.fxLeg ? "" : b.dataset.fxLeg; renderFluxograma(); });
+  document.getElementById("fxAcoesEdicao").classList.toggle("hidden", !pode);
+  document.getElementById("fxEditarBtn").textContent = fluxoEditando ? "✓ Concluir edição" : "✎ Editar fluxograma";
+  { const b = document.getElementById("fxEdicaoBarra"); b.classList.toggle("hidden", !fluxoEditando); b.style.display = fluxoEditando ? "flex" : ""; }
+  document.getElementById("fxCanvas").innerHTML = fluxoSvg();
+  document.getElementById("fxDetalhe").innerHTML = fluxoDetalheHtml();
+  document.querySelectorAll("#fxCanvas [data-fx-no]").forEach(g=>g.addEventListener("click", ()=>{ fluxoSel = g.dataset.fxNo; renderFluxograma(); }));
+  document.getElementById("fxEditarBtn").onclick = ()=>{ fluxoEditando = !fluxoEditando; renderFluxograma(); };
+  document.getElementById("fxAddBtn").onclick = ()=>{
+    const nome = prompt("Nome da nova etapa:"); if (!nome || !nome.trim()) return;
+    const id = "n"+Date.now().toString(36);
+    F.nodes.push({id, nome:nome.trim(), processo: fluxoFiltro || F.processos[0].id, preds:[], prazo:null, resp:"", obs:"", itemCat:""});
+    fluxoSel = id; fluxoEditando = true; fluxoSalvar(); renderFluxograma();
+  };
+  document.getElementById("fxProcBtn").onclick = fluxoGerenciarProcessos;
+  document.getElementById("fxResetBtn").onclick = ()=>{ if (!confirm("Restaurar o fluxograma padrão? As alterações feitas serão perdidas.")) return; DB.fluxograma = fluxoPadrao(); fluxoSel = null; fluxoFiltro = ""; fluxoSalvar(); renderFluxograma(); };
+  document.getElementById("fxImprimirBtn").onclick = ()=>{
+    const titulo = fluxoFiltro ? "Fluxograma - "+(F.processos.find(p=>p.id===fluxoFiltro)||{}).nome : "Fluxograma geral do pedido";
+    const svg = fluxoSvg();
+    imprimirComoPdf(`<div style="font-family:Arial;"><h3 style="color:#14462E;margin:0 0 8px;">${escaparHtmlPerfil(titulo)}</h3>${svg.replace(/<svg /,'<svg style="max-width:100%;height:auto;" ')}</div>`, titulo, {margem:"8mm"});
+  };
+  const bs = document.getElementById("fxSalvar");
+  if (bs) {
+    bs.onclick = ()=>{
+      const n = F.nodes.find(z=>z.id===fluxoSel); if (!n) return;
+      const nome = document.getElementById("fxNome").value.trim(); if (!nome) { alert("Informe o nome da etapa."); return; }
+      const preds = [...document.querySelectorAll(".fx-pred:checked")].map(c=>c.value);
+      if (fluxoCicloCom(F.nodes, n.id, preds)) { alert("Essas dependências criam um ciclo (a etapa dependeria dela mesma). Ajuste as etapas anteriores."); return; }
+      n.nome = nome; n.processo = document.getElementById("fxProc").value; n.resp = document.getElementById("fxResp").value.trim(); n.obs = document.getElementById("fxObs").value.trim();
+      const pz = document.getElementById("fxPrazo").value; n.prazo = pz==="" ? null : Math.max(0, parseInt(pz)||0); n.preds = preds;
+      fluxoSalvar(); renderFluxograma();
+    };
+    document.getElementById("fxExcluir").onclick = ()=>{
+      const n = F.nodes.find(z=>z.id===fluxoSel); if (!n) return;
+      if (!confirm(`Excluir a etapa "${n.nome}"? As etapas que dependiam dela herdam as dependencias dela.`)) return;
+      for (const o of F.nodes) if ((o.preds||[]).includes(n.id)) o.preds = [...new Set([...o.preds.filter(i=>i!==n.id), ...(n.preds||[])])];
+      F.nodes = F.nodes.filter(z=>z.id!==n.id); fluxoSel = null; fluxoSalvar(); renderFluxograma();
+    };
+  }
+}
+function fluxoSalvar(){ fluxoGarantir().atualizadoEm = new Date().toISOString(); saveDB(); }
+function fluxoGerenciarProcessos(){
+  const F = fluxoGarantir();
+  const acao = prompt("Processos atuais: "+F.processos.map(p=>p.nome).join(", ")+"\n\nDigite:\n+ Nome  (adicionar processo)\n- Nome  (remover processo vazio)\nNome antigo = Nome novo  (renomear)");
+  if (!acao) return; const t = acao.trim();
+  const cores = ["#6A1B9A","#1565C0","#00838F","#558B2F","#E65100","#C62828","#4E342E","#AD1457","#283593","#2E7D32"];
+  if (t.startsWith("+")) {
+    const nome = t.slice(1).trim(); if (!nome) return;
+    if (F.processos.some(p=>p.nome.toLowerCase()===nome.toLowerCase())) { alert("Já existe esse processo."); return; }
+    F.processos.push({id:"p"+Date.now().toString(36), nome, cor:cores[F.processos.length%cores.length]});
+  } else if (t.startsWith("-")) {
+    const nome = t.slice(1).trim().toLowerCase(); const p = F.processos.find(z=>z.nome.toLowerCase()===nome); if (!p) { alert("Processo não encontrado."); return; }
+    if (F.nodes.some(n=>n.processo===p.id)) { alert("Esse processo ainda tem etapas. Mova ou exclua as etapas antes de remover."); return; }
+    F.processos = F.processos.filter(z=>z.id!==p.id);
+  } else if (t.includes("=")) {
+    const [a,b] = t.split("=").map(z=>z.trim()); const p = F.processos.find(z=>z.nome.toLowerCase()===a.toLowerCase()); if (!p||!b) { alert("Processo não encontrado."); return; }
+    p.nome = b;
+  } else return;
+  fluxoSalvar(); renderFluxograma();
+}
+
 function ativarPaginaSetor(rootId, prefixo, classeBtn, chaveDataset, nome){
   document.querySelectorAll("#"+rootId+" .page").forEach(p=>p.classList.remove("active"));
   const pagina = document.getElementById(prefixo+nome);
   if (pagina) pagina.classList.add("active");
   document.querySelectorAll("."+classeBtn).forEach(b=>b.classList.toggle("active", b.dataset[chaveDataset]===nome));
 }
-function showGestaoPage(nome){ ativarPaginaSetor("gestaoRoot", "gestaopage-", "gestao-navbtn", "gestaopage", nome); if (nome === "qualidade") { try { renderGestaoQualidade(); } catch(e) { console.error(e); } } if (nome === "atividades") { try { renderAtividades(); } catch(e) { console.error(e); } } }
+function showGestaoPage(nome){ ativarPaginaSetor("gestaoRoot", "gestaopage-", "gestao-navbtn", "gestaopage", nome); if (nome === "qualidade") { try { renderGestaoQualidade(); } catch(e) { console.error(e); } } if (nome === "fluxograma") { try { renderFluxograma(); } catch(e) { console.error(e); } } if (nome === "atividades") { try { renderAtividades(); } catch(e) { console.error(e); } } }
 function showAdminPage(nome){ ativarPaginaSetor("adminRoot", "adminpage-", "admin-navbtn", "adminpage", nome); }
 document.querySelectorAll(".gestao-navbtn").forEach(b=>b.addEventListener("click", ()=>showGestaoPage(b.dataset.gestaopage)));
 document.querySelectorAll(".admin-navbtn").forEach(b=>b.addEventListener("click", ()=>showAdminPage(b.dataset.adminpage)));
@@ -3135,6 +3484,7 @@ function renderPage(name){
   else if (name==="lotes") renderLotes();
   else if (name==="itens") renderItensLote();
   else if (name==="custos") renderCustos();
+  else if (name==="terceiros") renderTerceiros();
   else if (name==="cadastro") renderCadastro();
   else if (name==="gantt") renderGantt();
 }
@@ -3345,11 +3695,11 @@ function renderPainel(){
   if (!lotesAbertos.length) {
     tabelaLotesEl.innerHTML = '<p class="muted">Nenhum lote urgente ou proximo do vencimento no momento.</p>';
   } else {
-    let htmlTab = "<table><tr><th>No Lote</th><th>No Pedido</th><th>Equipamento / Peca/Conjunto Avulso</th><th>Status</th><th>Proximo Vencimento</th><th>Dias Restantes</th></tr>";
+    let htmlTab = "<table><tr><th>No Lote</th><th>No Pedido</th><th>Equipamento / Peca/Conjunto Avulso</th><th>Status</th><th>Itens atrasados / a atrasar</th><th>Proximo Vencimento</th><th>Dias Restantes</th></tr>";
     for (const r of lotesAbertos) {
       const pedido = getPedido(r.lote.pedidoId);
       const diasTxt = (r.dias!==null && r.dias!==undefined) ? (r.dias<0 ? `<span style="color:var(--danger); font-weight:700;">${r.dias}</span>` : r.dias) : "-";
-      htmlTab += `<tr class="linha-clicavel" data-goto-lote="${r.lote.id}"><td>${escaparHtmlPerfil(r.lote.noLote)}</td><td>${pedido?escaparHtmlPerfil(String(pedido.noPedido)):"-"}</td><td>${escaparHtmlPerfil(nomesEquipEPecasLote(r.lote))}</td><td>${pill(r.status,LOTE_STATUS_COLORS)}</td><td>${r.proxima?fmtBR(r.proxima):"-"}</td><td>${diasTxt}</td></tr>`;
+      htmlTab += `<tr class="linha-clicavel" data-goto-lote="${r.lote.id}"><td>${escaparHtmlPerfil(r.lote.noLote)}</td><td>${pedido?escaparHtmlPerfil(String(pedido.noPedido)):"-"}</td><td>${escaparHtmlPerfil(nomesEquipEPecasLote(r.lote))}</td><td>${pill(r.status,LOTE_STATUS_COLORS)}</td><td>${itensProblemaDashHtml(r.itensProblema)}</td><td>${r.proxima?fmtBR(r.proxima):"-"}</td><td>${diasTxt}</td></tr>`;
     }
     htmlTab += "</table>";
     tabelaLotesEl.innerHTML = htmlTab;
@@ -3369,18 +3719,29 @@ function renderTabelaPedidosFinalizados(){
   if (!pedidosFinalizados.length) { el.innerHTML = '<p class="muted">Nenhum pedido finalizado ainda.</p>'; return; }
   el.innerHTML = pedidosFinalizados.map(p=>{
     const lotesDoPedido = DB.lotes.filter(l=>l.pedidoId===p.id);
-    return `<div class="card" style="margin-bottom:10px;">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong>Pedido ${p.noPedido} - ${p.cliente||""}</strong>
+    const entrada = p.dataEntrada ? parseDate(p.dataEntrada) : null;
+    const entrega = entrada && p.prazoPedido ? addPrazo(entrada, p.prazoPedido) : null;
+    const nomesDe = lote=>[...(lote.equipamentoIds||[]).map(id=>{const e=getEquipamento(id); return e?e.nome:"?";}), ...DB.pecasAvulsas.filter(pe=>pe.loteId===lote.id).map(pe=>pe.nome)].join(", ") || "-";
+    return `<div class="lote-card" style="border-left-color:var(--ok);">
+      <div class="lote-card-principal">
+        <span class="ordem-badge" title="Numero do pedido">${p.noPedido}</span>
+        <span class="no-lote">Pedido ${p.noPedido}</span>
+        <span class="equip">${escaparHtmlPerfil(p.cliente||"-")}</span>
         <span class="pill" style="background:var(--ok);">Finalizado</span>
+        <span class="pill" style="background:var(--gray);">${lotesDoPedido.length} lote(s)</span>
       </div>
-      <div class="muted" style="font-size:12px; margin-top:4px;">Entrada: ${p.dataEntrada?fmtBR(parseDate(p.dataEntrada)):"-"} | Cor: ${p.cor||"-"} | ${lotesDoPedido.length} Lote(s)</div>
-      <table style="margin-top:8px;"><tr><th>Lote</th><th>Equipamento/Peca</th></tr>
-      ${lotesDoPedido.map(lote=>{
-        const nomes = [...(lote.equipamentoIds||[]).map(id=>{const e=getEquipamento(id); return e?e.nome:"?";}), ...DB.pecasAvulsas.filter(pe=>pe.loteId===lote.id).map(pe=>pe.nome)];
-        return `<tr><td>${lote.noLote}</td><td>${nomes.join(", ")||"-"}</td></tr>`;
-      }).join("")}
-      </table>
+      <div class="lote-max">
+        <div class="lote-resumo">
+          <span><small>Data de entrada</small><b>${entrada?fmtBR(entrada):"-"}</b></span>
+          <span><small>Prazo do pedido</small><b>${p.prazoPedido?p.prazoPedido+" dias":"-"}</b></span>
+          <span><small>Limite de entrega</small><b>${entrega?fmtBR(entrega):"-"}</b></span>
+          <span><small>Rede</small><b>${escaparHtmlPerfil(p.rede||"-")}</b></span>
+          <span><small>Cor</small><b>${escaparHtmlPerfil(p.cor||"-")}</b></span>
+          <span><small>Lotes</small><b>${lotesDoPedido.length}</b></span></div>
+        <table style="margin-top:10px;"><tr><th>Lote</th><th>Equipamento/Peca</th></tr>
+        ${lotesDoPedido.map(lote=>`<tr><td>${lote.noLote}</td><td>${nomesDe(lote)}</td></tr>`).join("") || '<tr><td colspan="2" class="muted">Sem lotes.</td></tr>'}
+        </table>
+      </div>
     </div>`;
   }).join("");
 }
@@ -3474,31 +3835,55 @@ function renderPedidos(){
   function renderTabelaPedidos(){
     const pedidosAtivos = DB.pedidos.filter(p=>!pedidoEstaEncerrado(p));
     if (!pedidosAtivos.length) { document.getElementById("tabelaPedidos").innerHTML = '<p class="muted">Nenhum pedido cadastrado ainda.</p>'; return; }
-    let html = "<table><tr><th>No Pedido</th><th>Cliente</th><th>Data de Entrada</th><th>Prazo (dias)</th><th>Limite de entrega</th><th>Rede</th><th>Cor</th><th>Lotes Ativos</th><th>Lotes Encerrados</th><th>Acoes</th></tr>";
+    let html = "";
     for (const p of pedidosAtivos) {
       const lotesDoPed = DB.lotes.filter(l=>l.pedidoId===p.id); const nAtivos = lotesDoPed.filter(l=>!loteEstaEncerrado(l)).length; const nEnc = lotesDoPed.length - nAtivos;
-      if (p.id === pedidoEditandoInline) {
-        html += `<tr data-linha-pedido="${p.id}">`+
-          `<td><input type="number" min="0" max="9999" data-pf="noPedido" value="${p.noPedido}" style="width:70px;"></td>`+
-          `<td><input type="text" data-pf="cliente" value="${(p.cliente||"").replace(/"/g,"&quot;")}"></td>`+
-          `<td><input type="text" class="date-mask" data-pf="dataEntrada" data-iso-inicial="${p.dataEntrada||""}"></td>`+
-          `<td><input type="number" min="1" data-pf="prazoPedido" value="${p.prazoPedido||""}" style="width:70px;"></td>`+
-          `<td><input type="text" data-pf="limiteEntrega" style="width:110px;"></td>`+
-          `<td><select data-pf="rede">${opcoesRedeHtml(p.rede)}</select></td>`+
-          `<td><select data-pf="cor">${DB.cores.map(c=>`<option ${c===p.cor?"selected":""}>${c}</option>`).join("")}</select></td>`+
-          `<td>${nAtivos}</td><td>${nEnc}</td>`+
-          `<td><div class="acoes-lote"><button class="acao-icon" data-save-pedido="${p.id}" title="Salvar">&#10003;</button>`+
-          `<button class="acao-icon danger" data-cancel-pedido="${p.id}" title="Cancelar">&#10005;</button></div></td></tr>`;
-      } else {
-        const menuAberto = pedidoMenuAberto === p.id;
-        html += `<tr><td>${p.noPedido}</td><td>${p.cliente||"-"}</td><td>${p.dataEntrada?fmtBR(parseDate(p.dataEntrada)):"-"}</td><td>${p.prazoPedido||"-"}</td><td>${(p.dataEntrada&&p.prazoPedido)?fmtBR(addPrazo(parseDate(p.dataEntrada),p.prazoPedido)):"-"}</td><td>${p.rede||"-"}</td><td>${p.cor||"-"}</td><td>${nAtivos}</td><td>${nEnc}</td>`+
-                `<td class="acoes-cell"><button class="acao-icon" data-toggle-menu-pedido="${p.id}" title="Opcoes">&#9998;</button>`+
-                `<div class="menu-lote ${menuAberto?"":"hidden"}"><button data-edit-pedido="${p.id}">Editar</button><button class="danger" data-del-pedido="${p.id}">Excluir</button></div></td></tr>`;
-      }
+      const entrada = p.dataEntrada ? parseDate(p.dataEntrada) : null;
+      const entrega = entrada && p.prazoPedido ? addPrazo(entrada, p.prazoPedido) : null;
+      const editando = p.id === pedidoEditandoInline;
+      const aberto = editando || pedidosMaxAbertos.has(p.id);
+      const menuAberto = pedidoMenuAberto === p.id;
+      const q = v=>String(v==null?"":v).replace(/"/g,"&quot;");
+      html += `<div class="lote-card" data-linha-pedido="${p.id}" style="border-left-color:var(--primary);">
+        <div class="lote-card-principal">
+          <span class="ordem-badge" title="Numero do pedido">${p.noPedido}</span>
+          <span class="no-lote">Pedido ${p.noPedido}</span>
+          <span class="equip">${escaparHtmlPerfil(p.cliente||"-")}</span>
+          <span class="pill" style="background:var(--primary);">${nAtivos} lote(s) ativo(s)</span>
+          ${nEnc?`<span class="pill" style="background:var(--gray);">${nEnc} encerrado(s)</span>`:""}
+          <div class="acoes-cell" style="position:relative;" data-edicao>
+            ${editando ? `<button class="acao-icon" data-save-pedido="${p.id}" title="Validar a alteracao">&#10003;</button><button class="acao-icon danger" data-cancel-pedido="${p.id}" title="Reprovar e descartar a alteracao">&#10005;</button>`
+              : `<button class="acao-icon" data-toggle-menu-pedido="${p.id}" title="Editar ou excluir o pedido">&#9998;</button>
+                 <div class="lote-menu ${menuAberto?"":"hidden"}"><button type="button" data-edit-pedido="${p.id}">&#9998; Editar</button><button type="button" class="perigo" data-del-pedido="${p.id}">&#128465; Excluir</button></div>`}
+          </div>
+        </div>
+        <div class="lote-max" data-pedido-max="${p.id}">
+        ${editando ? `<div class="lote-edit">
+          <div style="font-weight:700; font-size:13px; margin-bottom:6px;">Editando o Pedido ${p.noPedido} <span class="muted" style="font-weight:400;">- use &#10003; para validar ou &#10005; para reprovar (no topo do pedido)</span></div>
+          <div class="grid grid-4">
+            <label style="font-size:12px; font-weight:600;">No Pedido<br><input type="number" min="0" max="9999" data-pf="noPedido" value="${p.noPedido}" style="width:90px;"></label>
+            <label style="font-size:12px; font-weight:600;">Cliente<br><input type="text" data-pf="cliente" value="${q(p.cliente)}" style="width:100%;"></label>
+            <label style="font-size:12px; font-weight:600;">Data de Entrada<br><input type="text" class="date-mask" data-pf="dataEntrada" data-iso-inicial="${p.dataEntrada||""}" style="width:120px;"></label>
+            <label style="font-size:12px; font-weight:600;">Prazo (dias)<br><input type="number" min="1" data-pf="prazoPedido" value="${p.prazoPedido||""}" style="width:90px;"></label>
+            <label style="font-size:12px; font-weight:600;">Limite de entrega<br><input type="text" data-pf="limiteEntrega" style="width:120px;"></label>
+            <label style="font-size:12px; font-weight:600;">Rede<br><select data-pf="rede">${opcoesRedeHtml(p.rede)}</select></label>
+            <label style="font-size:12px; font-weight:600;">Cor<br><select data-pf="cor">${DB.cores.map(c=>`<option ${c===p.cor?"selected":""}>${c}</option>`).join("")}</select></label>
+          </div></div>`
+        : `<div class="lote-resumo">
+          <span><small>Data de entrada</small><b>${entrada?fmtBR(entrada):"-"}</b></span>
+          <span><small>Prazo do pedido</small><b>${p.prazoPedido?p.prazoPedido+" dias":"-"}</b></span>
+          <span><small>Limite de entrega</small><b>${entrega?fmtBR(entrega):"-"}</b></span>
+          <span><small>Rede</small><b>${escaparHtmlPerfil(p.rede||"-")}</b></span>
+          <span><small>Cor</small><b>${escaparHtmlPerfil(p.cor||"-")}</b></span>
+          <span><small>Lotes ativos</small><b>${nAtivos}</b></span>
+          <span><small>Lotes encerrados</small><b>${nEnc}</b></span></div>
+          <div class="lote-rodape"><button type="button" class="btn btn-sm" data-ir-lotes-pedido="${p.id}" title="Abrir a tela Lotes deste pedido">Ir para os Lotes &rsaquo;</button></div>`}
+        </div>
+      </div>`;
     }
-    html += "</table>";
     document.getElementById("tabelaPedidos").innerHTML = html;
 
+    document.querySelectorAll("[data-ir-lotes-pedido]").forEach(b=>b.addEventListener("click", e=>{ e.stopPropagation(); showPage("lotes"); const sel = document.getElementById("loteFiltroPedido"); if (sel && [...sel.options].some(o=>o.value===b.dataset.irLotesPedido)) { sel.value = b.dataset.irLotesPedido; sel.dispatchEvent(new Event("change")); } }));
     document.querySelectorAll("[data-toggle-menu-pedido]").forEach(btn=>{
       btn.addEventListener("click", (e)=>{
         e.stopPropagation();
@@ -3513,7 +3898,7 @@ function renderPedidos(){
         pedidoEditandoInline = parseInt(btn.dataset.editPedido);
         pedidoMenuAberto = null;
         renderTabelaPedidos();
-        const linha = document.querySelector(`tr[data-linha-pedido="${pedidoEditandoInline}"]`);
+        const linha = document.querySelector(`[data-linha-pedido="${pedidoEditandoInline}"]`);
         ensureDateMask(linha.querySelector('[data-pf="dataEntrada"]'));
         setDateValue(linha.querySelector('[data-pf="dataEntrada"]'), DB.pedidos.find(p=>p.id===pedidoEditandoInline).dataEntrada);
         { const eIn = linha.querySelector('[data-pf="dataEntrada"]');
@@ -3542,7 +3927,7 @@ function renderPedidos(){
       btn.addEventListener("click", (e)=>{
         e.stopPropagation();
         const id = parseInt(btn.dataset.savePedido);
-        const linha = document.querySelector(`tr[data-linha-pedido="${id}"]`);
+        const linha = document.querySelector(`[data-linha-pedido="${id}"]`);
         const p = DB.pedidos.find(pd=>pd.id===id);
         const novoNoPedido = parseInt(linha.querySelector('[data-pf="noPedido"]').value);
         if (isNaN(novoNoPedido) || novoNoPedido < 0 || novoNoPedido > 9999) { alert("No Pedido deve ter ate 4 digitos (0 a 9999)."); return; }
@@ -3580,6 +3965,7 @@ let edicaoLoteId = null;
 let gerenciarMenuAberto = null; // {tipo:"equip"|"peca", id} do menu Editar/Excluir aberto em Gerenciar
 
 let pedidoMenuAberto = null;
+const pedidosMaxAbertos = new Set();
 let pedidoEditandoInline = null;
 
 let tempPecaAvulsaSeq = 1;
@@ -4074,8 +4460,12 @@ function renderLotes(){
             <span class="equip">${nomesEquipamentosLote(lote)}</span>
             ${pill(status,LOTE_STATUS_COLORS)} ${tagsAtrasoHtml(tipos)} ${lotePausadoAgora(lote)?'<span class="pill" style="background:#455A64;">PAUSADO</span>':''}
             <span class="ver-itens" data-chevron-lote="${lote.id}">${lotesMaxAbertos.has(lote.id)?"&#9662; Minimizar":"&#9656; Abrir"}</span>
-            <div class="acoes-cell">
-              <button class="acao-icon danger" data-del-lote="${lote.id}" title="Excluir">&#128465;</button>
+            <div class="acoes-cell" style="position:relative;" data-edicao>
+              ${lotesEdicao.has(lote.id) ? `<button class="acao-icon" data-lote-validar="${lote.id}" title="Validar a alteracao">&#10003;</button><button class="acao-icon danger" data-lote-reprovar="${lote.id}" title="Reprovar e desfazer a alteracao">&#10005;</button>` : `<button class="acao-icon" data-lote-menu-btn="${lote.id}" title="Editar ou excluir o lote">&#9998;</button>`}
+              <div class="lote-menu hidden" data-lote-menu="${lote.id}">
+                <button type="button" data-lote-alterar="${lote.id}">&#9998; Editar</button>
+                <button type="button" class="perigo" data-del-lote="${lote.id}">&#128465; Excluir</button>
+              </div>
             </div>
           </div>
           <div class="lote-janela lote-clicavel" data-abrir-lote="${lote.id}">
@@ -4085,27 +4475,39 @@ function renderLotes(){
             <span class="muted">${nItens} item(ns)${prazoLote!==null?" - caminho dos itens "+prazoLote+"d":""}</span>
           </div>
           <div class="lote-max ${lotesMaxAbertos.has(lote.id)?"":"hidden"}" data-lote-max="${lote.id}">
-          <div style="margin-top:10px;"><button type="button" class="btn btn-sm" data-ir-itens="${lote.id}" title="Abrir a tela Itens do Lote deste lote">Ir para os Itens do Lote &rsaquo;</button></div>
+          <div class="lote-view ${lotesEdicao.has(lote.id)?"hidden":""}">
+            <div class="lote-resumo"><span><small>Ordem</small><b>${fmtOrdem(lote.ordem)}</b></span><span><small>Prazo do lote</small><b>${(dlx.prazoAlvo||prazoManualLote(lote)) ? (dlx.prazoAlvo||prazoManualLote(lote))+" dias" : "-"}</b></span><span><small>Limite de entrega</small><b>${dlx.dataLimiteOriginal?fmtBR(dlx.dataLimiteOriginal):"-"}</b></span></div>
+            ${dlx.inviavelDias>0?`<div style="color:var(--danger); font-weight:700; font-size:12px; margin-top:6px;">&#9888; Prazo inviavel: faltam ${dlx.inviavelDias} dia(s)</div>`:""}
+            <div style="font-weight:700; font-size:13px; margin-top:10px;">Equipamentos e pecas (${linhasEquipPeca.length})</div>
+            <table style="margin-top:4px;"><tr><th>Equipamento/Peca</th><th>Item Pedido</th><th>Descricao</th><th>Qtd</th></tr>
+            ${linhasEquipPeca.map(l=>`<tr><td>${l.nome}</td><td>${l.itemPedido}</td><td>${l.descricao}</td><td>${l.qtd}</td></tr>`).join("") || '<tr><td colspan="4" class="muted">Nenhum equipamento ou peca cadastrado.</td></tr>'}</table>
+            <div class="lote-rodape"><button type="button" class="btn btn-sm" data-ir-itens="${lote.id}" title="Abrir a tela Itens do Lote deste lote">Ir para os Itens do Lote &rsaquo;</button>
+              ${todosItensConcluidos(lote)?`<button class="btn btn-sm" data-encerrar-lote="${lote.id}" style="background:var(--ok); color:#fff;">Encerrar lote</button>`:""}</div>
+          </div>
+          <div class="lote-edit ${lotesEdicao.has(lote.id)?"":"hidden"}" data-edicao>
+            <div style="font-weight:700; font-size:13px; margin-bottom:2px;">Editando o Lote ${lote.noLote} <span class="muted" style="font-weight:400;">- use &#10003; para validar ou &#10005; para reprovar (no topo do lote)</span></div>
           <div class="lote-controles" style="display:flex; flex-wrap:wrap; gap:14px; align-items:flex-end; margin-top:10px; margin-bottom:4px;">
             <label style="font-size:12px; font-weight:600;">Ordem<br><input type="number" min="1" class="inp-ordem-lote" data-lote="${lote.id}" value="${lote.ordem||1}" style="width:70px;"></label>
             <label style="font-size:12px; font-weight:600;">Prazo do lote (dias)<br><input type="number" min="1" class="inp-prazo-lote" data-lote="${lote.id}" value="${dlx.prazoAlvo||prazoManualLote(lote)||""}" ${(pedido&&!pedido.dataEntrada)?"disabled title=\"O pedido ainda nao tem data de entrada\"":""} style="width:110px;"></label>
             <label style="font-size:12px; font-weight:600;">Limite de entrega (data)<br><input type="text" class="inp-limite-lote" data-lote="${lote.id}" data-iso-inicial="${dlx.dataLimiteOriginal?fmtISO(dlx.dataLimiteOriginal):""}" ${pedido&&!pedido.dataEntrada?"disabled":""} style="width:115px;"></label>
             ${(!loteEstaEncerrado(lote) && violacaoOrdemLimite(lotesDoPedidoOrdenados(lote.pedidoId)) && lotesDoPedidoOrdenados(lote.pedidoId).filter(x=>!loteEstaEncerrado(x)).some(x=>x.id!==lote.id && ((x.ordem<lote.ordem && limiteDoLoteParaOrdem(x)>limiteDoLoteParaOrdem(lote) && limiteDoLoteParaOrdem(lote)!==null) || (x.ordem>lote.ordem && limiteDoLoteParaOrdem(x)!==null && limiteDoLoteParaOrdem(x)<limiteDoLoteParaOrdem(lote)))))?`<span style="color:var(--danger); font-weight:700; font-size:12px;">&#9888; Ordem fora do limite de entrega</span>`:""}
-            ${todosItensConcluidos(lote)?`<button class="btn" data-encerrar-lote="${lote.id}" style="background:var(--ok); color:#fff;">Encerrar lote</button>`:""}
             ${dlx.inviavelDias>0?`<span style="color:var(--danger); font-weight:700; font-size:12px;">&#9888; Prazo inviavel: faltam ${dlx.inviavelDias} dia(s) (itens precisam de ${prazoLote}d, disponivel ${dlx.prazoAlvo+dlx.diasPausa}d)</span>`:""}
           </div>
-          ${htmlPausasLote(lote)}
           <div class="lote-eqp lote-sub" style="margin-top:10px;"><div style="font-weight:700; font-size:13px;">Equipamentos e pecas (${linhasEquipPeca.length})</div>
           <table style="margin-top:6px;"><tr><th>Equipamento/Peca</th><th>Item Pedido</th><th>Descricao</th><th>Qtd</th><th>Custo Estimado Unitario (R$)</th><th></th></tr>
-          ${linhasEquipPeca.map(l=>`<tr><td>${l.nome}</td><td>${l.itemPedido}</td><td>${l.descricao}</td><td>${l.qtd}</td><td>${fmtBRL(l.custo)}</td><td><button type="button" class="acao-icon danger" data-edicao data-lote-del-ep="${l.tipo}|${l.id}|${lote.id}" title="Excluir deste lote">&#128465;</button></td></tr>`).join("") || '<tr><td colspan="6" class="muted">Nenhum equipamento ou peca cadastrado.</td></tr>'}
+          ${linhasEquipPeca.map(l=>`<tr><td>${l.nome}</td><td>${l.itemPedido}</td><td>${l.descricao}</td><td><input type="number" min="1" step="1" value="${l.qtd}" data-lote-qtd-ep="${l.tipo}|${l.id}|${lote.id}" style="width:70px;"></td><td>${fmtBRL(l.custo)}</td><td><button type="button" class="acao-icon danger" data-lote-del-ep="${l.tipo}|${l.id}|${lote.id}" title="Remover deste lote">&#128465;</button></td></tr>`).join("") || '<tr><td colspan="6" class="muted">Nenhum equipamento ou peca cadastrado.</td></tr>'}
           </table>
-          <div data-edicao style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:8px;">
-            <select data-lote-add-equip-sel="${lote.id}" style="min-width:200px;"><option value="">- equipamento a adicionar -</option>${equipamentosOrdenados().filter(e=>!(lote.equipamentoIds||[]).includes(e.id)).map(e=>`<option value="${e.id}">${escaparHtmlPerfil(e.nome)}</option>`).join("")}</select>
-            <button type="button" class="btn secondary btn-sm" data-lote-add-equip="${lote.id}">+ Equipamento</button>
-            <span class="muted">ou</span>
-            <input type="text" data-lote-add-peca-nome="${lote.id}" placeholder="Nome da peca/conjunto avulso" style="min-width:200px;">
-            <button type="button" class="btn secondary btn-sm" data-lote-add-peca="${lote.id}">+ Peca/Conjunto avulso</button>
+          <div style="margin-top:8px;"><button type="button" class="btn secondary btn-sm" data-lote-abrir-add="${lote.id}">+ Adicionar equipamento ou peca/conjunto</button></div>
+          <div class="hidden lote-add-box" data-lote-add-box="${lote.id}">
+            <div class="lote-add-linha"><label>Equipamento<select data-lote-add-equip-sel="${lote.id}"><option value="">- escolha o equipamento -</option>${equipamentosOrdenados().filter(e=>!(lote.equipamentoIds||[]).includes(e.id)).map(e=>`<option value="${e.id}">${escaparHtmlPerfil(e.nome)}</option>`).join("")}</select></label>
+              <label>Quantidade<input type="number" min="1" step="1" value="1" data-lote-add-equip-qtd="${lote.id}" style="min-width:0; width:90px;"></label>
+              <button type="button" class="btn btn-sm" data-lote-add-equip="${lote.id}">Adicionar equipamento</button></div>
+            <div class="lote-add-linha"><label>Peca/Conjunto avulso<input type="text" data-lote-add-peca-nome="${lote.id}" placeholder="Nome da peca ou conjunto"></label>
+              <label>Quantidade<input type="number" min="1" step="1" value="1" data-lote-add-peca-qtd="${lote.id}" style="min-width:0; width:90px;"></label>
+              <button type="button" class="btn btn-sm" data-lote-add-peca="${lote.id}">Adicionar peca/conjunto</button></div>
           </div></div>
+          
+          </div>
           </div>
         </div>`;
       }
@@ -4130,6 +4532,22 @@ function renderLotes(){
         const ch = document.querySelector(`[data-chevron-lote="${id}"]`); if (ch) ch.innerHTML = lotesMaxAbertos.has(id) ? "&#9662; Minimizar" : "&#9656; Abrir";
       });
     });
+    document.querySelectorAll("[data-lote-menu-btn]").forEach(b=>b.addEventListener("click", e=>{
+      e.stopPropagation(); const id = b.dataset.loteMenuBtn;
+      document.querySelectorAll(".lote-menu").forEach(m=>{ if (m.dataset.loteMenu!==id) m.classList.add("hidden"); });
+      document.querySelector(`[data-lote-menu="${id}"]`).classList.toggle("hidden");
+    }));
+    if (!window.__loteMenuFecha) { window.__loteMenuFecha = true; document.addEventListener("click", ()=>document.querySelectorAll(".lote-menu").forEach(m=>m.classList.add("hidden"))); }
+    document.querySelectorAll("[data-lote-alterar]").forEach(b=>b.addEventListener("click", e=>{ e.stopPropagation(); const id = parseInt(b.dataset.loteAlterar); lotesMaxAbertos.add(id); if (!lotesEdicao.has(id)) { loteTirarSnapshot(id); lotesEdicao.add(id); } renderTabelaLotes(); }));
+    document.querySelectorAll("[data-lote-validar]").forEach(b=>b.addEventListener("click", ()=>{
+      const id = parseInt(b.dataset.loteValidar); lotesEdicao.delete(id); lotesSnapshot.delete(id); saveDB(); renderTabelaLotes(); try { popularSelLote(); } catch(e){}
+    }));
+    document.querySelectorAll("[data-lote-reprovar]").forEach(b=>b.addEventListener("click", ()=>{
+      const id = parseInt(b.dataset.loteReprovar);
+      if (!confirm("Reprovar e descartar todas as alteracoes feitas neste lote desde que voce clicou em Alterar?")) return;
+      loteDesfazerAlteracoes(id); lotesEdicao.delete(id); lotesSnapshot.delete(id); saveDB(); renderTabelaLotes(); try { popularSelLote(); } catch(e){}
+    }));
+    document.querySelectorAll("[data-lote-abrir-add]").forEach(b=>b.addEventListener("click", ()=>{ const box = document.querySelector(`[data-lote-add-box="${b.dataset.loteAbrirAdd}"]`); box.classList.toggle("hidden"); b.classList.toggle("hidden", !box.classList.contains("hidden")); }));
     document.querySelectorAll("[data-ir-itens]").forEach(b=>b.addEventListener("click", e=>{ e.stopPropagation(); irParaLoteKanban(parseInt(b.dataset.irItens)); }));
 
     const reRender = ()=>{ saveDB(); renderTabelaLotes(); try { popularSelLote(); } catch(e){} };
@@ -4137,13 +4555,24 @@ function renderLotes(){
       const lote = DB.lotes.find(l=>l.id===parseInt(b.dataset.loteAddEquip)); if (!lote) return;
       const sel = document.querySelector(`[data-lote-add-equip-sel="${lote.id}"]`);
       const id = parseInt(sel.value); if (!id) { alert("Escolha o equipamento a adicionar."); return; }
-      loteAdicionarEquipamento(lote, id); lotesMaxAbertos.add(lote.id); reRender();
+      const qtd = parseInt(document.querySelector(`[data-lote-add-equip-qtd="${lote.id}"]`).value);
+      if (!(qtd>0)) { alert("Informe a quantidade (1 ou mais)."); return; }
+      loteAdicionarEquipamento(lote, id, qtd); lotesMaxAbertos.add(lote.id); reRender();
     }));
     document.querySelectorAll("[data-lote-add-peca]").forEach(b=>b.addEventListener("click", ()=>{
       const lote = DB.lotes.find(l=>l.id===parseInt(b.dataset.loteAddPeca)); if (!lote) return;
       const inp = document.querySelector(`[data-lote-add-peca-nome="${lote.id}"]`);
       const nome = inp.value.trim(); if (!nome) { alert("Digite o nome da peca/conjunto avulso."); return; }
-      loteAdicionarPeca(lote, nome); lotesMaxAbertos.add(lote.id); reRender();
+      const qtd = parseInt(document.querySelector(`[data-lote-add-peca-qtd="${lote.id}"]`).value);
+      if (!(qtd>0)) { alert("Informe a quantidade (1 ou mais)."); return; }
+      loteAdicionarPeca(lote, nome, qtd); lotesMaxAbertos.add(lote.id); reRender();
+    }));
+    document.querySelectorAll("[data-lote-qtd-ep]").forEach(inp=>inp.addEventListener("change", ()=>{
+      const [tipo, id, loteId] = inp.dataset.loteQtdEp.split("|"); const q = parseInt(inp.value);
+      if (!(q>0)) { alert("A quantidade precisa ser 1 ou mais."); reRender(); return; }
+      if (tipo==="eq") { const lote = DB.lotes.find(l=>l.id===parseInt(loteId)); if (!lote) return; lote.quantidadesPorEquip = lote.quantidadesPorEquip || {}; lote.quantidadesPorEquip[parseInt(id)] = q; }
+      else { const pc = DB.pecasAvulsas.find(x=>x.id===parseInt(id)); if (!pc) return; pc.quantidade = q; }
+      limparCacheCalc(); reRender();
     }));
     document.querySelectorAll("[data-lote-del-ep]").forEach(b=>b.addEventListener("click", ()=>{
       const [tipo, id, loteId] = b.dataset.loteDelEp.split("|"); const lote = DB.lotes.find(l=>l.id===parseInt(loteId)); if (!lote) return;
@@ -4787,7 +5216,14 @@ function linhaItemLote(lote, row, r, tipo, nome, subTxt){
   const drag = tipo==="avulso" ? "avulso" : "item";
   return `<tr data-drag-id="${row.id}" data-drag-tipo="${drag}">
     <td><div class="name"><span class="drag-h" data-edicao title="Segure e arraste para mudar a ordem">&#9776;</span>${escaparHtmlPerfil(nome)}</div><div class="sub">${subTxt}</div><span class="resp-tag ${q.k}" title="${q.auto?"Datas preenchidas automaticamente por esse setor (editor/gestor do PPCP tambem pode preencher)":"O PPCP preenche as datas deste item"}">${q.rot}${q.auto?" (automatico)":""}</span></td>
-    <td>${lim}</td><td>${sol}</td><td class="${iniAuto?"auto":""}">${ini}</td><td>${prev}</td><td class="${realAuto?"auto":""}">${real}</td><td>${pill(r.status)}</td></tr>`;
+    <td>${lim}</td><td>${sol}</td><td class="${iniAuto?"auto":""}">${ini}</td><td>${prev}</td><td class="${realAuto?"auto":""}">${real}</td><td>${pill(r.status)}${tagsAtrasoItemHtml(r)}</td></tr>`;
+}
+function tagsAtrasoItemHtml(r){
+  let h = "";
+  if (r.atrasoExecucao) h += `<div class="dt-info ruim" title="O item estourou o proprio prazo de execucao">&#9201; Atraso de execucao: ${r.diasAtrasoExec}d</div>`;
+  if (r.atrasoPedido) h += `<div class="dt-info" style="color:#E65100;font-weight:600;" title="Prazo final do pedido nao comporta este item${r.atrasoExecucao?"":" (a execucao do item esta dentro do prazo dele)"}">&#128197; Atraso p/ prazo do pedido: ${r.diasAtrasoPedido}d</div>`;
+  if (!r.atrasoExecucao && !r.atrasoPedido && r.status==="ATRASADO") h += "";
+  return h;
 }
 function celulasPrazoItem(r, row, tipo){
   const solicitado = !!row.dataSolicitacao;
@@ -4896,12 +5332,21 @@ function renderItensLoteBody(){
 
 // ---- Lotes: adicionar/excluir equipamento e peca direto na relacao do lote ----
 const lotesMaxAbertos = new Set();
-function loteAdicionarEquipamento(lote, equipId){
+const lotesEdicao = new Set();
+const lotesSnapshot = new Map();   // copia do que o lote tinha ao comecar a alterar (para o X desfazer tudo)
+const SNAP_CHAVES = ["lotes","pecasAvulsas","itensAvulsos","prerequisitosAvulsos","itensLote","custos","cargasExpedicao","checklistInstancias","tarefasEngenharia","removidos","removidosEm","logAcomp"];
+function loteTirarSnapshot(id){ const o = {}; for (const k of SNAP_CHAVES) if (DB[k]!==undefined) o[k] = JSON.stringify(DB[k]); lotesSnapshot.set(id, o); }
+function loteDesfazerAlteracoes(id){
+  const o = lotesSnapshot.get(id); if (!o) return false;
+  for (const k of Object.keys(o)) DB[k] = JSON.parse(o[k]);
+  limparCacheCalc(); return true;
+}
+function loteAdicionarEquipamento(lote, equipId, qtd){
   const ids = lote.equipamentoIds || [];
   if (!equipId || ids.includes(equipId)) return false;
   lote.equipamentoIds = [...ids, equipId];
   lote.descricoesPorEquip = lote.descricoesPorEquip || {};
-  lote.quantidadesPorEquip = lote.quantidadesPorEquip || {}; lote.quantidadesPorEquip[equipId] = 1;
+  lote.quantidadesPorEquip = lote.quantidadesPorEquip || {}; lote.quantidadesPorEquip[equipId] = qtd>0 ? qtd : 1;
   lote.itensPedidoPorEquip = lote.itensPedidoPorEquip || {}; lote.itensPedidoPorEquip[equipId] = "1";
   const novas = [];
   for (const it of DB.itens.filter(i=>i.equipamentoId===equipId && i.rastrearPadrao!==false)) {
@@ -4924,8 +5369,8 @@ function loteRemoverEquipamento(lote, equipId){
   removerDaColecao("checklistInstancias", c=>!(c.loteId===lote.id && c.equipamentoId===equipId));
   limparCacheCalc();
 }
-function loteAdicionarPeca(lote, nome){
-  const peca = {id: DB.seq.pecaAvulsa++, loteId: lote.id, nome, itemPedido:"1", quantidade:1, custoEstimado:null};
+function loteAdicionarPeca(lote, nome, qtd){
+  const peca = {id: DB.seq.pecaAvulsa++, loteId: lote.id, nome, itemPedido:"1", quantidade:(qtd>0 ? qtd : 1), custoEstimado:null};
   DB.pecasAvulsas.push(peca); return peca;
 }
 function loteRemoverPeca(pecaId){
@@ -5079,6 +5524,17 @@ function renderItensUmLote(lote, resumoEl, lista, unico){
     (dl.inviavelDias>0 ? `<span class="chip danger"><b>&#9888; Prazo inviavel: faltam ${dl.inviavelDias} dia(s)</b></span>` : "")+
     (todosItensConcluidos(lote) ? `<button class="btn" id="btnEncerrarLoteItens" style="background:var(--ok); color:#fff; padding:4px 12px;">Encerrar lote</button>` : "");
   { const be = resumoEl.querySelector("#btnEncerrarLoteItens"); if (be) be.onclick = ()=>perguntarEncerrarLote(lote); }
+  { // separacao: atraso de execucao x atraso por prazo do pedido
+    let nExec=0, nPed=0; const nomesExec=[], nomesPed=[];
+    for (const [iid,row] of getItensLoteByLote(lote.id)) {
+      const rr = calcularStatusItem(lote, row, DB.settings.alertaDias); const m = getItem(iid);
+      if (rr.atrasoExecucao && !row.dataReal) { nExec++; nomesExec.push(m.nome); }
+      if (rr.atrasoPedido) { nPed++; nomesPed.push(m.nome); }
+    }
+    resumoEl.insertAdjacentHTML("beforeend",
+      `<span class="chip ${nExec?"danger":""}" title="${escaparHtmlPerfil(nomesExec.join(", "))}"><span class="muted">Itens com atraso de execucao</span> <b>${nExec}</b></span>`+
+      `<span class="chip" style="${nPed?"border-color:#E65100;":""}" title="${escaparHtmlPerfil(nomesPed.join(", "))}"><span class="muted">Itens em risco p/ prazo do pedido</span> <b>${nPed}</b></span>`);
+  }
 
   { const antiga = document.getElementById("itensLoteInfoBox"); if (antiga) antiga.remove(); }
 
@@ -5272,6 +5728,14 @@ function renderCustos(){
   renderCustosBody();
 
   document.getElementById("salvarCustosBtn").onclick = () => {
+    salvarCustosDigitados();
+    saveDB();
+    alert("Custos salvos!");
+    renderCustos();
+  };
+}
+let custosLotesAbertos = new Set();
+function salvarCustosDigitados(){
     document.querySelectorAll("#tabelaCustos [data-custo]").forEach(inp=>{
       const chave = inp.dataset.custo; // "il-123" ou "ia-45"
       const [tipo, idStr] = chave.split("-");
@@ -5287,10 +5751,6 @@ function renderCustos(){
       else if (field==="observacao") custo.observacao = inp.value;
     });
     DB.custos = DB.custos.filter(c => c.valor!==null || c.dataCusto || (c.observacao && c.observacao.trim()!==""));
-    saveDB();
-    alert("Custos salvos!");
-    renderCustos();
-  };
 }
 
 function renderCustosBody(){
@@ -5320,7 +5780,7 @@ function renderCustosBody(){
         const meta = getItem(row.itemId);
         if (filtroTipo==="eq" && meta.equipamentoId!==filtroTipoId) continue;
         const custo = DB.custos.find(c=>c.itensLoteId===row.id);
-        linhas.push({chave:`il-${row.id}`, noLote:lote.noLote, equipamento:nomeEq, item:meta.nome,
+        linhas.push({chave:`il-${row.id}`, loteId:lote.id, noLote:lote.noLote, equipamento:nomeEq, item:meta.nome,
                      valor: custo?custo.valor:null, dataCusto: custo?custo.dataCusto:null, observacao: custo?custo.observacao:""});
       }
     }
@@ -5330,7 +5790,7 @@ function renderCustosBody(){
         for (const ia of ordenarItensAvulsos(DB.itensAvulsos.filter(i=>i.pecaAvulsaId===peca.id))) {
           if (ia.rastrear===false || ia.levantarCusto===false) continue;
           const custo = DB.custos.find(c=>c.itensAvulsoId===ia.id);
-          linhas.push({chave:`ia-${ia.id}`, noLote:lote.noLote, equipamento:`${peca.nome} (avulsa)`, item:ia.itemNome,
+          linhas.push({chave:`ia-${ia.id}`, loteId:lote.id, noLote:lote.noLote, equipamento:`${peca.nome} (avulsa)`, item:ia.itemNome,
                        valor: custo?custo.valor:null, dataCusto: custo?custo.dataCusto:null, observacao: custo?custo.observacao:""});
         }
       }
@@ -5338,14 +5798,50 @@ function renderCustosBody(){
   }
   if (!linhas.length) { document.getElementById("tabelaCustos").innerHTML = '<p class="muted">Nenhum item cadastrado para essa selecao.</p>'; document.getElementById("tabelaCustoTotal").innerHTML=""; return; }
 
-  let html = "<table><tr><th>No Lote</th><th>Equipamento/Peca</th><th>Item</th><th>Custo Teorico (R$)</th><th>Data do Custo</th><th>Observacao</th></tr>";
-  for (const l of linhas) {
-    html += `<tr><td>${l.noLote}</td><td>${l.equipamento}</td><td>${l.item}</td>`+
+  const custoTeoricoLinhas = ls => ls.reduce((sm,l)=>{ const c = DB.custos.find(c=>l.chave.startsWith("il-") ? c.itensLoteId===parseInt(l.chave.slice(3)) : c.itensAvulsoId===parseInt(l.chave.slice(3))); return sm + (c && c.valor ? c.valor : 0); },0);
+  let html = "";
+  const pedidoSel = DB.pedidos.find(p=>p.id==pedidoFiltroId);
+  const lotesOrd = DB.lotes.filter(l=>linhas.some(x=>x.loteId===l.id));
+  for (const lote of lotesOrd) {
+    const ls = linhas.filter(x=>x.loteId===lote.id);
+    const equipIds = (lote.equipamentoIds||[]).filter(eqId=>filtroTipo!=="eq" || eqId===filtroTipoId);
+    const pecas = DB.pecasAvulsas.filter(p=>p.loteId===lote.id).filter(p=>filtroTipo!=="peca" || p.id===filtroTipoId);
+    const estimado = (filtroTipo!=="peca" ? equipIds.reduce((sm,eqId)=>sm+((lote.custosEstimadosPorEquip||{})[eqId]||0),0) : 0) +
+                     (filtroTipo!=="eq" ? pecas.reduce((sm,p)=>sm+(p.custoEstimado||0),0) : 0);
+    const teorico = custoTeoricoLinhas(ls);
+    const gruposNomes = [...new Set(ls.map(x=>x.equipamento))];
+    const aberto = custosLotesAbertos.has(lote.id);
+    const ordem = fmtOrdem(lote.ordem);
+    let corpo = "";
+    if (aberto) {
+      corpo = '<div class="lote-max">';
+      for (const g of gruposNomes) {
+        const lg = ls.filter(x=>x.equipamento===g);
+        corpo += `<details class="lote-eqp" open style="margin:6px 0 12px;"><summary>${escaparHtmlPerfil(g)} <span class="muted" style="font-weight:400;">(${lg.length} item(ns) - teorico ${fmtBRL(custoTeoricoLinhas(lg))})</span></summary>`+
+          '<table style="margin-top:6px;"><tr><th>Item</th><th>Custo Teorico (R$)</th><th>Data do Custo</th><th>Observacao</th></tr>'+
+          lg.map(l=>`<tr><td>${escaparHtmlPerfil(l.item)}</td>`+
             `<td><input type="text" placeholder="0,00" style="width:110px" data-custo="${l.chave}" data-field="valor" data-raw="${l.valor??""}"></td>`+
             `<td><input type="text" class="date-mask" data-custo="${l.chave}" data-field="dataCusto" data-iso-inicial="${l.dataCusto||""}"></td>`+
-            `<td><input type="text" data-custo="${l.chave}" data-field="observacao" value="${(l.observacao||"").replace(/"/g,"&quot;")}"></td></tr>`;
+            `<td><input type="text" data-custo="${l.chave}" data-field="observacao" value="${(l.observacao||"").replace(/"/g,"&quot;")}"></td></tr>`).join("")+
+          '</table></details>';
+      }
+      corpo += '</div>';
+    }
+    html += `<div class="lote-card" data-custo-lote="${lote.id}">
+      <div class="lote-card-principal lote-clicavel" data-toggle-custo-lote="${lote.id}" title="Clique para ${aberto?"minimizar":"abrir"}">
+        <span class="ordem-badge">${escaparHtmlPerfil(String(ordem))}</span>
+        <span class="no-lote">Lote ${escaparHtmlPerfil(String(lote.noLote))}</span>
+        <span class="equip">${escaparHtmlPerfil(gruposNomes.join(", "))}</span>
+        <span class="pill" style="background:var(--gray);">${ls.length} item(ns)</span>
+        <span class="ver-itens">${aberto?"&#9650; Minimizar":"&#9660; Abrir custos"}</span>
+      </div>
+      <div class="lote-janela">
+        <span>Pedido <b>${pedidoSel?escaparHtmlPerfil(String(pedidoSel.noPedido)):"-"}</b></span>
+        <span>Custo estimado <b>${fmtBRL(estimado)}</b></span>
+        <span>Custo teorico <b>${fmtBRL(teorico)}</b></span>
+        <span>Diferenca <b style="color:${teorico>estimado&&estimado>0?"var(--danger,#B3261E)":"inherit"}">${fmtBRL(teorico-estimado)}</b></span>
+      </div>${corpo}</div>`;
   }
-  html += "</table>";
   document.getElementById("tabelaCustos").innerHTML = html;
   document.querySelectorAll('#tabelaCustos input[data-field="valor"]').forEach(inp=>{
     setMoneyValue(inp, inp.dataset.raw ? parseFloat(inp.dataset.raw) : null);
@@ -5354,6 +5850,15 @@ function renderCustosBody(){
   document.querySelectorAll('#tabelaCustos input.date-mask').forEach(inp=>{
     ensureDateMask(inp);
     setDateValue(inp, inp.dataset.isoInicial || null);
+  });
+  document.querySelectorAll('#tabelaCustos [data-toggle-custo-lote]').forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const id = parseInt(el.dataset.toggleCustoLote);
+      // preserva o que ja foi digitado antes de redesenhar
+      salvarCustosDigitados();
+      if (custosLotesAbertos.has(id)) custosLotesAbertos.delete(id); else custosLotesAbertos.add(id);
+      renderCustosBody();
+    });
   });
 
   function custoTeoricoItens(itensLoteRows){
@@ -5371,41 +5876,8 @@ function renderCustosBody(){
     }, 0);
   }
 
-  let htmlTotais = "<table><tr><th>Lote / Equipamento-Peca</th><th>Custo Estimado Unitario (R$)</th><th>Custo Teorico</th></tr>";
-  for (const lote of DB.lotes) {
-    if (filtroId && lote.id != filtroId) continue;
-    if (!filtroId && pedidoFiltroId && lote.pedidoId != pedidoFiltroId) continue;
-    const itensLoteRows = [...getItensLoteByLote(lote.id).values()];
-    const pecasDoLote = DB.pecasAvulsas.filter(p=>p.loteId===lote.id).filter(p=>filtroTipo!=="peca" || p.id===filtroTipoId);
-    const equipIdsDoLote = (lote.equipamentoIds||[]).filter(eqId=>filtroTipo!=="eq" || eqId===filtroTipoId);
-    const itensLoteFiltrados = filtroTipo==="peca" ? [] : itensLoteRows.filter(row=>{
-      if (filtroTipo!=="eq") return true;
-      const meta = getItem(row.itemId);
-      return meta && meta.equipamentoId===filtroTipoId;
-    });
-    const totalItens = custoTeoricoItens(filtroTipo==="peca" ? [] : itensLoteFiltrados);
-    const totalAvulsos = filtroTipo==="eq" ? 0 : pecasDoLote.reduce((s,peca)=>s+custoTeoricoItensAvulsos(DB.itensAvulsos.filter(i=>i.pecaAvulsaId===peca.id)), 0);
-    const total = totalItens + totalAvulsos;
-    const estimadoFiltrado = (filtroTipo!=="peca" ? equipIdsDoLote.reduce((s,eqId)=>s+((lote.custosEstimadosPorEquip||{})[eqId]||0),0) : 0) +
-                             (filtroTipo!=="eq" ? pecasDoLote.reduce((s,p)=>s+(p.custoEstimado||0),0) : 0);
-    htmlTotais += `<tr style="background:var(--bg-soft);"><td><strong>${lote.noLote}</strong></td><td style="white-space:nowrap"><strong>${fmtBRL(estimadoFiltrado)}</strong></td><td style="white-space:nowrap"><strong>${fmtBRL(total)}</strong></td></tr>`;
-    if (filtroTipo!=="peca") {
-      for (const eqId of equipIdsDoLote) {
-        const eq = getEquipamento(eqId);
-        const itensDoEquip = DB.itens.filter(i=>i.equipamentoId===eqId).map(i=>i.id);
-        const teoricoEquip = custoTeoricoItens(itensLoteRows.filter(row=>itensDoEquip.includes(row.itemId)));
-        htmlTotais += `<tr><td style="padding-left:24px;">${eq?eq.nome:"?"}</td><td style="white-space:nowrap">${fmtBRL((lote.custosEstimadosPorEquip||{})[eqId])}</td><td style="white-space:nowrap">${fmtBRL(teoricoEquip)}</td></tr>`;
-      }
-    }
-    if (filtroTipo!=="eq") {
-      for (const peca of pecasDoLote) {
-        const teoricoPeca = custoTeoricoItensAvulsos(DB.itensAvulsos.filter(i=>i.pecaAvulsaId===peca.id));
-        htmlTotais += `<tr><td style="padding-left:24px;">${peca.nome} (avulsa)</td><td style="white-space:nowrap">${fmtBRL(peca.custoEstimado)}</td><td style="white-space:nowrap">${fmtBRL(teoricoPeca)}</td></tr>`;
-      }
-    }
-  }
-  htmlTotais += "</table>";
-  document.getElementById("tabelaCustoTotal").innerHTML = htmlTotais;
+  document.getElementById("tabelaCustoTotal").innerHTML = "";
+  { const cc = document.getElementById("tabelaCustoTotal").closest(".card"); if (cc) cc.style.display = "none"; }
 }
 
 /* =====================================================================
@@ -9970,6 +10442,295 @@ function gerarRncPrintHtml(r){
     <div style="font-size:9.5px; color:#555;">Respons&aacute;vel${dataDoc ? " &ndash; " + dataDoc : ""}</div></div>`;
   h += `<div style="margin-top:8px; border-top:2px solid ${LIMA}; padding-top:3px; text-align:right; font-size:8.5px; color:#777;">RNC-${numRnc(r.sequencia)} &middot; gerada pelo sistema PPCP-BRS</div></div>`;
   return h;
+}
+
+/* =====================================================================
+   PPCP - ENVIO / RECEBIMENTO DE MATERIAL DE TERCEIROS
+   (mesmo padrao da RNC: lista, formulario, documento para imprimir)
+   ===================================================================== */
+let tercEditId = null;       // id em edicao (null = nova)
+let tercItensTmp = [];       // itens em edicao
+function numTerc(n){ return "TER-" + String(n).padStart(4,"0"); }
+function tercNivel(){ return nivelAcessoSetor("ppcp"); }
+function tercPodeEditar(){ const n = tercNivel(); return n==="editor" || n==="gestor"; }
+function tercPodeSeparar(){ if (tercPodeEditar()) return true; const n = nivelAcessoSetor("producao"); return n==="editor" || n==="gestor"; }
+function tercFmtNum(v){ if (v===null || v===undefined || v==="" || isNaN(v)) return "-"; return Number(v).toLocaleString("pt-BR", {maximumFractionDigits:3}); }
+function tercPesoTotal(it){ const q = Number(it.quant), u = Number(it.pesoUnit); return (q>0 && u>0) ? q*u : null; }
+function tercSituacao(e){
+  if (e.status==="encerrada") return "ENCERRADA";
+  const its = e.itens||[];
+  const rec = its.map(i=>Number(i.recebido)||0);
+  if (its.length && its.every((i,ix)=>rec[ix] >= (Number(i.quant)||0))) return "RETORNADO";
+  if (rec.some(r=>r>0)) return "RETORNO PARCIAL";
+  if ((e.nfEnvio||"").trim()) return "ENVIADO";
+  if (e.separacaoData || (e.separacaoNome||"").trim()) return "SEPARADO";
+  return "AGUARDANDO SEPARACAO";
+}
+const TERC_CORES = { "AGUARDANDO SEPARACAO":"#B7791F", "SEPARADO":"#2B6CB0", "ENVIADO":"#2B6CB0", "RETORNO PARCIAL":"#C05621", "RETORNADO":"var(--ok)", "ENCERRADA":"var(--gray)" };
+function tercAtrasado(e){ const sit = tercSituacao(e); if (sit==="RETORNADO" || sit==="ENCERRADA" || !e.previsaoRetorno) return false; return e.previsaoRetorno < fmtISO(hojeUTC()); }
+
+function tercMarcarAba(qual){
+  document.querySelectorAll("#tercAbas [data-terc-aba]").forEach(b=>b.classList.toggle("active", b.dataset.tercAba===qual));
+}
+function tercFornecedoresLista(){
+  const base = (DB.terceirosCadastro||[]).slice();
+  return base.filter(Boolean).sort((a,b)=>a.localeCompare(b,"pt-BR"));
+}
+function tercAdicionarTerceiro(nome){
+  nome = (nome||"").trim(); if (!nome) return null;
+  if (!Array.isArray(DB.terceirosCadastro)) DB.terceirosCadastro = [];
+  const ex = DB.terceirosCadastro.find(n=>n.toLowerCase()===nome.toLowerCase());
+  if (ex) return ex;
+  DB.terceirosCadastro.push(nome); saveDB(); return nome;
+}
+function renderTercCadastro(){
+  const el = document.getElementById("tercCadLista"); if (!el) return;
+  const lista = tercFornecedoresLista();
+  el.innerHTML = lista.length ? lista.map(n=>`<span class="pill" style="background:var(--primary); display:inline-flex; gap:6px; align-items:center;">${escaparHtmlPerfil(n)}<a href="#" data-edicao data-terc-cad-del="${escaparHtmlPerfil(n)}" style="color:#fff; text-decoration:none; font-weight:800;" title="Remover da lista">&times;</a></span>`).join("") : '<span class="muted">Nenhum terceiro cadastrado.</span>';
+  el.querySelectorAll("[data-terc-cad-del]").forEach(a=>a.addEventListener("click", ev=>{
+    ev.preventDefault(); const nome = a.dataset.tercCadDel;
+    const emUso = (DB.enviosTerceiros||[]).some(x=>(x.fornecedor||"").trim().toLowerCase()===nome.toLowerCase());
+    if (!confirm(`Remover "${nome}" da lista de terceiros?`+(emUso?"\n\nAs requisicoes ja registradas com esse terceiro continuam como estao.":""))) return;
+    DB.terceirosCadastro = DB.terceirosCadastro.filter(n=>n!==nome); saveDB(); renderTercCadastro();
+  }));
+  const add = document.getElementById("tercCadAddBtn"), inp = document.getElementById("tercCadNome");
+  add.onclick = ()=>{ if (tercAdicionarTerceiro(inp.value)) { inp.value = ""; renderTercCadastro(); } };
+  inp.onkeydown = ev=>{ if (ev.key==="Enter") { ev.preventDefault(); add.onclick(); } };
+}
+function renderTerceiros(){
+  tercMarcarAba("lista");
+  renderTercCadastro();
+  document.querySelectorAll("#tercAbas [data-terc-aba]").forEach(b=>{ b.onclick = ()=>{ if (b.dataset.tercAba==="nova") abrirFormTerceiros(null); else renderTerceiros(); }; });
+  document.getElementById("tercListaView").classList.remove("hidden");
+  document.getElementById("tercFormView").classList.add("hidden");
+  const lista = DB.enviosTerceiros || [];
+  const selF = document.getElementById("tercFiltroForn"), selP = document.getElementById("tercFiltroPed");
+  const vF = selF.value, vP = selP.value;
+  const forn = [...new Set(lista.map(e=>(e.fornecedor||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"pt-BR"));
+  selF.innerHTML = '<option value="">Todos</option>' + forn.map(f=>`<option value="${escaparHtmlPerfil(f)}">${escaparHtmlPerfil(f)}</option>`).join(""); selF.value = forn.includes(vF) ? vF : "";
+  const peds = [...new Set(lista.map(e=>e.pedidoNo||"").filter(Boolean))];
+  selP.innerHTML = '<option value="">Todos</option>' + peds.map(f=>`<option value="${escaparHtmlPerfil(f)}">${escaparHtmlPerfil(f)}</option>`).join(""); selP.value = peds.includes(vP) ? vP : "";
+  ["tercFiltroSit","tercFiltroForn","tercFiltroPed"].forEach(id=>{ document.getElementById(id).onchange = renderTerceiros; });
+  const fs = document.getElementById("tercFiltroSit").value;
+  const filtrada = lista.filter(e=>(!selF.value || (e.fornecedor||"").trim()===selF.value) && (!selP.value || (e.pedidoNo||"")===selP.value)
+      && (fs==="" || (fs==="encerrada" ? e.status==="encerrada" : e.status!=="encerrada"))).sort((a,b)=>b.sequencia-a.sequencia);
+  const el = document.getElementById("tercTabela");
+  const cab = '<tr><th>N&ordm;</th><th>Data</th><th>Filial</th><th>Fornecedor</th><th>Pedido</th><th>Itens</th><th>Peso total (kg)</th><th>Previs&atilde;o retorno</th><th>NF envio</th><th>Situa&ccedil;&atilde;o</th><th>A&ccedil;&otilde;es</th></tr>';
+  if (!filtrada.length) { el.innerHTML = cab + '<tr><td colspan="11" class="muted">Nenhuma requisi&ccedil;&atilde;o com esses filtros.</td></tr>'; return; }
+  el.innerHTML = cab + filtrada.map(e=>{
+    const sit = tercSituacao(e); const pesoT = (e.itens||[]).reduce((s,i)=>s+(tercPesoTotal(i)||0),0);
+    return `<tr><td>${numTerc(e.sequencia)}</td><td>${e.data?isoParaBR(e.data):""}</td><td>${escaparHtmlPerfil(e.filial||"")}</td><td>${escaparHtmlPerfil(e.fornecedor||"")}</td><td>${escaparHtmlPerfil(e.pedidoNo||"")}</td>
+      <td>${(e.itens||[]).length}</td><td>${pesoT?tercFmtNum(pesoT):"-"}</td><td>${e.previsaoRetorno?isoParaBR(e.previsaoRetorno):""}${tercAtrasado(e)?' <span class="pill" style="background:var(--danger);">ATRASADO</span>':""}</td>
+      <td>${escaparHtmlPerfil(e.nfEnvio||"")}</td><td>${pill(sit, TERC_CORES)}</td>
+      <td><div class="acoes-lote">
+        <button type="button" class="acao-icon btn-leitura" data-terc-imprimir="${e.id}" title="Visualizar / imprimir">&#128424;</button>
+        <button type="button" class="acao-icon" data-terc-editar="${e.id}" title="Abrir / editar">&#9998;</button>
+        <button type="button" class="acao-icon danger" data-edicao data-terc-excluir="${e.id}" title="Excluir">&#128465;</button></div></td></tr>`;
+  }).join("");
+  el.querySelectorAll("[data-terc-imprimir]").forEach(b=>b.addEventListener("click", ()=>abrirPreviewTerceiros(parseInt(b.dataset.tercImprimir))));
+  el.querySelectorAll("[data-terc-editar]").forEach(b=>b.addEventListener("click", ()=>abrirFormTerceiros(parseInt(b.dataset.tercEditar))));
+  el.querySelectorAll("[data-terc-excluir]").forEach(b=>b.addEventListener("click", ()=>{
+    const e = DB.enviosTerceiros.find(x=>x.id===parseInt(b.dataset.tercExcluir)); if (!e) return;
+    if (!confirm(`Excluir a requisicao ${numTerc(e.sequencia)} (${e.fornecedor||"sem fornecedor"})?`)) return;
+    removerDaColecao("enviosTerceiros", x=>x.id!==e.id); saveDB(); renderTerceiros();
+  }));
+}
+
+function tercNovoItem(){ return { id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), codPai:"", material:"", codigo:"", quant:1, dimensao:"", pesoUnit:null, of:"", corte:"", recebido:null, dataRetorno:"", ofRetorno:"" }; }
+function tercLerItensDoForm(){
+  const mapa = new Map(tercItensTmp.map(i=>[i.id, i]));
+  document.querySelectorAll("#tercItensTab tr[data-it]").forEach(tr=>{
+    const it = mapa.get(tr.dataset.it); if (!it) return; const g = c=>tr.querySelector("."+c);
+    it.codPai = g("ti-pai").value.trim(); it.material = g("ti-mat").value.trim(); it.codigo = g("ti-cod").value.trim();
+    it.quant = parseFloat(g("ti-qtd").value) || 0; it.dimensao = g("ti-dim").value.trim();
+    const pu = parseFloat(String(g("ti-peso").value).replace(",",".")); it.pesoUnit = isNaN(pu) ? null : pu;
+    it.of = g("ti-of").value.trim(); it.corte = g("ti-corte").value.trim();
+  });
+  document.querySelectorAll("#tercRetornoTab tr[data-it]").forEach(tr=>{
+    const it = mapa.get(tr.dataset.it); if (!it) return;
+    const rv = tr.querySelector(".tr-rec").value; it.recebido = rv==="" ? null : (parseFloat(rv)||0);
+    it.dataRetorno = tr.querySelector(".tr-data").value;
+    it.ofRetorno = tr.querySelector(".tr-of").value.trim();
+  });
+}
+function renderTercItens(){
+  const ro = !tercPodeEditar();
+  const dis = ro ? "disabled" : "";
+  const cab = '<tr><th>C&oacute;d. pai</th><th>Material</th><th>C&oacute;digo</th><th style="width:70px;">Quant.</th><th>Dimens&atilde;o [mm]</th><th style="width:90px;">Peso unit. [kg]</th><th>Peso total [kg]</th><th>OF</th><th>Corte</th><th></th></tr>';
+  document.getElementById("tercItensTab").innerHTML = cab + (tercItensTmp.length ? tercItensTmp.map(it=>`<tr data-it="${it.id}">
+    <td><input type="text" class="ti-pai" value="${escaparHtmlPerfil(it.codPai||"")}" ${dis} style="min-width:110px;"></td>
+    <td><input type="text" class="ti-mat" value="${escaparHtmlPerfil(it.material||"")}" ${dis} style="min-width:200px;"></td>
+    <td><input type="text" class="ti-cod" value="${escaparHtmlPerfil(it.codigo||"")}" ${dis} style="min-width:100px;"></td>
+    <td><input type="number" class="ti-qtd" min="0" step="any" value="${it.quant}" ${dis} style="width:70px;"></td>
+    <td><input type="text" class="ti-dim" value="${escaparHtmlPerfil(it.dimensao||"")}" ${dis} style="min-width:90px;"></td>
+    <td><input type="text" class="ti-peso" value="${it.pesoUnit!=null?String(it.pesoUnit).replace(".",","):""}" ${dis} style="width:90px;"></td>
+    <td class="ti-pt">${tercFmtNum(tercPesoTotal(it))}</td>
+    <td><input type="text" class="ti-of" value="${escaparHtmlPerfil(it.of||"")}" ${dis} style="width:80px;"></td>
+    <td><input type="text" class="ti-corte" value="${escaparHtmlPerfil(it.corte||"")}" ${dis} style="width:80px;"></td>
+    <td><button type="button" class="acao-icon danger" data-edicao data-ti-del="${it.id}" title="Remover linha">&#128465;</button></td></tr>`).join("") : '<tr><td colspan="10" class="muted">Nenhum item. Use "+ Adicionar item" ou "Colar do Excel".</td></tr>');
+  document.querySelectorAll("[data-ti-del]").forEach(b=>b.addEventListener("click", ()=>{ tercLerItensDoForm(); tercItensTmp = tercItensTmp.filter(i=>i.id!==b.dataset.tiDel); renderTercItens(); }));
+  document.querySelectorAll("#tercItensTab input").forEach(inp=>inp.addEventListener("change", ()=>{ tercLerItensDoForm(); renderTercRetorno(); document.querySelectorAll("#tercItensTab tr[data-it]").forEach(tr=>{ const it = tercItensTmp.find(i=>i.id===tr.dataset.it); if (it) tr.querySelector(".ti-pt").textContent = tercFmtNum(tercPesoTotal(it)); }); }));
+  renderTercRetorno();
+}
+function renderTercRetorno(){
+  const dis = tercPodeSeparar() ? "" : "disabled";
+  const cab = '<tr><th>Material</th><th>C&oacute;digo</th><th>Quant. enviada</th><th style="width:90px;">Recebido</th><th>Faltante</th><th>Data retorno</th><th>OF retorno</th></tr>';
+  document.getElementById("tercRetornoTab").innerHTML = cab + (tercItensTmp.length ? tercItensTmp.map(it=>{
+    const falt = (Number(it.recebido)||0)!==0 ? (Number(it.quant)||0) - Number(it.recebido) : "";
+    return `<tr data-it="${it.id}"><td>${escaparHtmlPerfil(it.material||"")}</td><td>${escaparHtmlPerfil(it.codigo||"")}</td><td>${tercFmtNum(it.quant)}</td>
+      <td><input type="number" class="tr-rec" min="0" step="any" value="${it.recebido!=null?it.recebido:""}" ${dis} style="width:90px;"></td>
+      <td class="tr-falt" style="${falt>0?"color:var(--danger); font-weight:700;":""}">${falt===""?"":tercFmtNum(falt)}</td>
+      <td><input type="date" class="tr-data" value="${it.dataRetorno||""}" ${dis}></td>
+      <td><input type="text" class="tr-of" value="${escaparHtmlPerfil(it.ofRetorno||"")}" ${dis} style="width:90px;"></td></tr>`;
+  }).join("") : '<tr><td colspan="7" class="muted">Sem itens de envio.</td></tr>');
+  document.querySelectorAll("#tercRetornoTab .tr-rec").forEach(inp=>inp.addEventListener("input", ()=>{
+    const tr = inp.closest("tr"); const it = tercItensTmp.find(i=>i.id===tr.dataset.it); if (!it) return;
+    const v = parseFloat(inp.value)||0; const f = v!==0 ? (Number(it.quant)||0) - v : "";
+    const c = tr.querySelector(".tr-falt"); c.textContent = f===""?"":tercFmtNum(f); c.style.color = f>0?"var(--danger)":""; c.style.fontWeight = f>0?"700":"";
+    if (v>0 && !tr.querySelector(".tr-data").value) tr.querySelector(".tr-data").value = fmtISO(hojeUTC());
+  }));
+}
+
+function abrirFormTerceiros(id){
+  const e = id!=null ? (DB.enviosTerceiros||[]).find(x=>x.id===id) : null;
+  tercEditId = e ? e.id : null;
+  document.getElementById("tercListaView").classList.add("hidden");
+  document.getElementById("tercFormView").classList.remove("hidden");
+  tercMarcarAba(e ? "lista" : "nova");
+  const v = (i,val)=>{ document.getElementById(i).value = val==null?"":val; };
+  document.getElementById("tercFormTitulo").textContent = e ? "Requisição " + numTerc(e.sequencia) : "Nova requisição";
+  document.getElementById("tercNumeroTopo").textContent = e ? numTerc(e.sequencia) : "(novo)";
+  document.getElementById("tercSitTopo").textContent = e ? tercSituacao(e) : "";
+  { const sel = document.getElementById("tercFornecedor"); const nomes = tercFornecedoresLista(); const atual = e ? (e.fornecedor||"").trim() : "";
+    if (atual && !nomes.some(n=>n.toLowerCase()===atual.toLowerCase())) nomes.push(atual);
+    sel.innerHTML = '<option value="">- selecione -</option>' + nomes.map(n=>`<option value="${escaparHtmlPerfil(n)}">${escaparHtmlPerfil(n)}</option>`).join("");
+    document.getElementById("tercFornNovoLink").onclick = ev=>{ ev.preventDefault(); const nm = prompt("Nome do novo terceiro / fornecedor:"); const ok = tercAdicionarTerceiro(nm); if (ok) { const o = document.createElement("option"); o.value = ok; o.textContent = ok; if (![...sel.options].some(x=>x.value===ok)) sel.appendChild(o); sel.value = ok; } };
+  }
+  document.getElementById("tercPedido").innerHTML = '<option value="">- sem pedido -</option>' + pedidosAbertos(e?e.pedidoId:null).map(p=>`<option value="${p.id}">${escaparHtmlPerfil(p.noPedido)}${p.cliente?" - "+escaparHtmlPerfil(p.cliente):""}</option>`).join("");
+  v("tercFilial", e?e.filial:"BRS"); v("tercFornecedor", e?e.fornecedor:""); v("tercPedido", e&&e.pedidoId?e.pedidoId:"");
+  v("tercData", e?e.data:fmtISO(hojeUTC())); v("tercPrevisao", e?e.previsaoRetorno:""); v("tercNfEnvio", e?e.nfEnvio:""); v("tercNfRetorno", e?e.nfRetorno:"");
+  v("tercObs", e?e.observacao:""); v("tercSolicitante", e?(e.solicitanteNome||e.solicitanteEmail||""):nomeExibicao(emailUsuarioAtual)); v("tercSolData", e?e.solicitanteData:fmtISO(hojeUTC()));
+  v("tercSepNome", e?e.separacaoNome:""); v("tercSepData", e?e.separacaoData:""); v("tercRecNome", e?e.recebimentoNome:""); v("tercRecData", e?e.recebimentoData:"");
+  tercItensTmp = e ? JSON.parse(JSON.stringify(e.itens||[])) : [tercNovoItem()];
+  const edit = tercPodeEditar(), sep = tercPodeSeparar();
+  ["tercFilial","tercFornecedor","tercPedido","tercData","tercPrevisao","tercNfEnvio","tercObs","tercSolData"].forEach(i=>{ document.getElementById(i).disabled = !edit; });
+  ["tercSepNome","tercSepData","tercRecNome","tercRecData","tercNfRetorno"].forEach(i=>{ document.getElementById(i).disabled = !sep; });
+  document.getElementById("tercSalvarBtn").classList.toggle("hidden", !sep);
+  document.getElementById("tercMsg").innerHTML = "";
+  document.getElementById("tercColarBox").classList.add("hidden");
+  renderTercItens();
+  document.getElementById("tercAddItemBtn").onclick = ()=>{ tercLerItensDoForm(); tercItensTmp.push(tercNovoItem()); renderTercItens(); };
+  document.getElementById("tercColarBtn").onclick = ()=>document.getElementById("tercColarBox").classList.toggle("hidden");
+  document.getElementById("tercColarOkBtn").onclick = ()=>{
+    const linhas = document.getElementById("tercColarTxt").value.split(/\r?\n/).map(l=>l.split("\t")).filter(c=>c.some(x=>x.trim()));
+    if (!linhas.length) return;
+    tercLerItensDoForm();
+    if (tercItensTmp.length===1 && !tercItensTmp[0].material && !tercItensTmp[0].codigo) tercItensTmp = [];
+    for (const c of linhas) {
+      const it = tercNovoItem(); const g = i=>(c[i]||"").trim();
+      it.codPai = g(0); it.material = g(1); it.codigo = g(2); it.quant = parseFloat(g(3).replace(",",".")) || 1; it.dimensao = g(4);
+      const pn = parseFloat(g(5).replace(",",".")); if (!isNaN(pn) && it.quant>0) it.pesoUnit = Math.round(pn/it.quant*10000)/10000;
+      it.of = g(6); tercItensTmp.push(it);
+    }
+    document.getElementById("tercColarTxt").value = ""; document.getElementById("tercColarBox").classList.add("hidden"); renderTercItens();
+  };
+  document.getElementById("tercSalvarBtn").onclick = salvarTerceiros;
+  document.getElementById("tercVoltarBtn").onclick = renderTerceiros;
+  document.getElementById("tercImprimirBtn").onclick = ()=>{ const r = tercMontarDoForm(); abrirPreviewTerceiros(null, r); };
+  window.scrollTo(0,0);
+}
+function tercMontarDoForm(){
+  tercLerItensDoForm();
+  const g = i=>document.getElementById(i).value.trim();
+  const existente = tercEditId!=null ? DB.enviosTerceiros.find(x=>x.id===tercEditId) : null;
+  const ped = g("tercPedido") ? getPedido(parseInt(g("tercPedido"))) : null;
+  return Object.assign({}, existente || {}, {
+    id: existente ? existente.id : 0, sequencia: existente ? existente.sequencia : 0,
+    filial: g("tercFilial"), fornecedor: g("tercFornecedor"), pedidoId: ped ? ped.id : null, pedidoNo: ped ? ped.noPedido : "",
+    data: g("tercData"), previsaoRetorno: g("tercPrevisao"), nfEnvio: g("tercNfEnvio"), nfRetorno: g("tercNfRetorno"),
+    observacao: document.getElementById("tercObs").value, itens: tercItensTmp.filter(i=>i.material||i.codigo||i.codPai),
+    solicitanteNome: existente ? (existente.solicitanteNome||"") : nomeExibicao(emailUsuarioAtual), solicitanteEmail: existente ? existente.solicitanteEmail : emailUsuarioAtual, solicitanteData: g("tercSolData"),
+    separacaoNome: g("tercSepNome"), separacaoData: g("tercSepData"), recebimentoNome: g("tercRecNome"), recebimentoData: g("tercRecData"),
+  });
+}
+function salvarTerceiros(){
+  const msg = document.getElementById("tercMsg");
+  const d = tercMontarDoForm();
+  if (tercPodeEditar()) {
+    if (!d.fornecedor) { msg.innerHTML = '<span style="color:var(--danger)">Informe o fornecedor.</span>'; return; }
+    if (!d.itens.length) { msg.innerHTML = '<span style="color:var(--danger)">Adicione ao menos um item com material ou código.</span>'; return; }
+    if (d.itens.some(i=>!(Number(i.quant)>0))) { msg.innerHTML = '<span style="color:var(--danger)">Todos os itens precisam de quantidade maior que zero.</span>'; return; }
+  }
+  const agora = new Date().toISOString();
+  if (tercEditId!=null) {
+    const e = DB.enviosTerceiros.find(x=>x.id===tercEditId); if (!e) return;
+    if (tercPodeEditar()) Object.assign(e, d);
+    else { // quem so separa/recebe altera apenas esses campos e as quantidades recebidas
+      for (const k of ["separacaoNome","separacaoData","recebimentoNome","recebimentoData","nfRetorno"]) e[k] = d[k];
+      for (const it of e.itens||[]) { const n = d.itens.find(x=>x.id===it.id); if (n) { it.recebido = n.recebido; it.dataRetorno = n.dataRetorno; it.ofRetorno = n.ofRetorno; } }
+    }
+    e.atualizadoEm = agora; e.atualizadoPor = emailUsuarioAtual;
+  } else {
+    const seq = (DB.enviosTerceiros||[]).reduce((m,x)=>Math.max(m,x.sequencia||0),0) + 1;
+    const novo = Object.assign({}, d, { id: DB.seq.envioTerceiros++, sequencia: seq, status:"aberta", criadoEm: agora, criadoPor: emailUsuarioAtual });
+    DB.enviosTerceiros.push(novo); tercEditId = novo.id;
+  }
+  saveDB();
+  const e2 = DB.enviosTerceiros.find(x=>x.id===tercEditId);
+  document.getElementById("tercNumeroTopo").textContent = numTerc(e2.sequencia); document.getElementById("tercSitTopo").textContent = tercSituacao(e2);
+  document.getElementById("tercFormTitulo").textContent = "Requisição " + numTerc(e2.sequencia);
+  msg.innerHTML = `<span style="color:var(--ok)">Salvo: ${numTerc(e2.sequencia)} - ${tercSituacao(e2)}.</span>` + (tercPodeEditar() && tercSituacao(e2)==="RETORNADO" && e2.status!=="encerrada" ? ' <button type="button" class="btn btn-sm" id="tercEncerrarBtn">Encerrar requisição</button>' : "");
+  const be = document.getElementById("tercEncerrarBtn"); if (be) be.onclick = ()=>{ e2.status="encerrada"; e2.encerradaEm = new Date().toISOString(); saveDB(); renderTerceiros(); };
+}
+
+function gerarTercPrintHtml(e){
+  const x = escaparHtmlPerfil; const ml = t=>x(t).replace(/\n/g,"<br>");
+  const VERDE = "#14462E", VERDE2 = "#1F6C47", LIMA = "#91C53E", LINHA = "#C9D6CB", FUNDO = "#F1F6EE";
+  const logoEl = document.querySelector("#appRoot img[alt='BRS Equipamentos Agricolas']");
+  const logo = logoEl && /^data:image\//.test(logoEl.src) ? logoEl.src : "";
+  const bd = `border:1px solid ${LINHA};`;
+  const barra = t=>`<div style="background:${VERDE2}; color:#fff; font-weight:bold; font-size:10.5px; letter-spacing:.4px; padding:4px 8px; margin-top:8px; border-left:5px solid ${LIMA};">${t}</div>`;
+  const lab = t=>`<td style="${bd} padding:4px 7px; font-weight:bold; width:15%; background:${FUNDO}; color:${VERDE}; font-size:10px;">${t}</td>`;
+  const val = t=>`<td style="${bd} padding:4px 7px; width:35%; font-size:11px;">${t}</td>`;
+  const th = (t,w)=>`<td style="${bd} padding:3px 5px; background:${FUNDO}; color:${VERDE}; font-size:9.5px; font-weight:bold;${w?` width:${w};`:""}">${t}</td>`;
+  const td = (t,al)=>`<td style="${bd} padding:3px 5px; font-size:10px;${al?` text-align:${al};`:""}">${t}</td>`;
+  const its = e.itens||[];
+  const totQ = its.reduce((s,i)=>s+(Number(i.quant)||0),0), totP = its.reduce((s,i)=>s+(tercPesoTotal(i)||0),0);
+  const num = n=>n ? "TER-" + String(n).padStart(4,"0") : "(rascunho)";
+  const cabecalho = `<table style="width:100%; border-collapse:collapse; border:2px solid ${VERDE};"><tr>
+    <td style="width:26%; padding:6px 10px; background:#fff; text-align:center; vertical-align:middle;">${logo ? `<img src="${logo}" alt="BRS" style="max-height:52px; max-width:100%;">` : `<strong style="color:${VERDE}; font-size:18px;">BRS</strong>`}</td>
+    <td style="background:${VERDE}; color:#fff; text-align:center; padding:8px; vertical-align:middle;"><div style="font-weight:bold; font-size:14px; letter-spacing:.3px;">REQUISI&Ccedil;&Atilde;O DE ENVIO/RECEBIMENTO<br>DE MATERIAL DE TERCEIROS</div><div style="font-size:9.5px; color:${LIMA}; margin-top:2px; letter-spacing:1px;">BRS EQUIPAMENTOS AGR&Iacute;COLAS</div></td>
+    <td style="width:22%; background:${FUNDO}; padding:6px 10px; vertical-align:middle; border-left:4px solid ${LIMA};"><div style="font-size:9px; color:${VERDE2}; font-weight:bold;">N&ordm;</div><div style="font-weight:bold; font-size:17px; color:${VERDE};">${num(e.sequencia)}</div></td></tr></table>`;
+  const ident = `<table style="width:100%; border-collapse:collapse; table-layout:fixed; margin-top:6px;">
+    <tr>${lab("Filial")}${val(x(e.filial||""))}${lab("Fornecedor")}${val(x(e.fornecedor||""))}</tr>
+    <tr>${lab("Data")}${val(e.data?isoParaBR(e.data):"")}${lab("NF envio")}${val(x(e.nfEnvio||""))}</tr>
+    <tr>${lab("Previs&atilde;o retorno")}${val(e.previsaoRetorno?isoParaBR(e.previsaoRetorno):"")}${lab("Pedido")}${val(x(e.pedidoNo||""))}</tr></table>`;
+  const assin = `<table style="width:100%; border-collapse:collapse; table-layout:fixed; margin-top:10px; page-break-inside:avoid;">
+    <tr>${lab("Solicitante")}${val(x(e.solicitanteNome||e.solicitanteEmail||""))}${lab("Data")}${val(e.solicitanteData?isoParaBR(e.solicitanteData):"")}</tr>
+    <tr>${lab("Separa&ccedil;&atilde;o")}${val(x(e.separacaoNome||"")+"<br>&nbsp;")}${lab("Data")}${val(e.separacaoData?isoParaBR(e.separacaoData):"")}</tr>
+    <tr>${lab("Recebimento")}${val(x(e.recebimentoNome||"")+"<br>&nbsp;")}${lab("Data")}${val(e.recebimentoData?isoParaBR(e.recebimentoData):"")}</tr></table>`;
+  const rodape = `<div style="margin-top:8px; border-top:2px solid ${LIMA}; padding-top:3px; text-align:right; font-size:8.5px; color:#777;">${num(e.sequencia)} &middot; gerado pelo sistema PPCP-BRS</div>`;
+  let h = `<div style="font-family:Arial,Helvetica,sans-serif; font-size:11px; color:#111; -webkit-print-color-adjust:exact; print-color-adjust:exact;">`;
+  h += cabecalho + ident + barra("ENVIO");
+  h += `<table style="width:100%; border-collapse:collapse; table-layout:fixed;"><tr>${th("C&oacute;d. pai","15%")}${th("Material","24%")}${th("C&oacute;digo","11%")}${th("Quant.","7%")}${th("Dimens&atilde;o [mm]","11%")}${th("Peso [kg]","9%")}${th("OF","8%")}${th("Corte")}</tr>` +
+    (its.length ? its.map(i=>`<tr>${td(x(i.codPai||"-"))}${td(x(i.material||""))}${td(x(i.codigo||""))}${td(tercFmtNum(i.quant),"center")}${td(x(i.dimensao||"-"),"center")}${td(tercFmtNum(tercPesoTotal(i)),"center")}${td(x(i.of||""),"center")}${td(x(i.corte||""),"center")}</tr>`).join("") : `<tr>${td("&nbsp;")}${td("")}${td("")}${td("")}${td("")}${td("")}${td("")}${td("")}</tr>`) +
+    `<tr><td colspan="3" style="${bd} padding:3px 5px; font-size:10px; font-weight:bold; text-align:right;">Totais</td>${td("<b>"+tercFmtNum(totQ)+"</b>","center")}${td("")}${td("<b>"+(totP?tercFmtNum(totP):"-")+"</b>","center")}${td("")}${td("")}</tr></table>`;
+  if (e.observacao) h += `<div style="${bd} margin-top:6px; padding:5px 8px;"><strong style="color:${VERDE};">Observa&ccedil;&atilde;o:</strong> ${ml(e.observacao)}</div>`;
+  h += assin + rodape;
+  // pagina 2: retorno (conferencia do que volta do fornecedor)
+  h += `<div style="page-break-before:always; padding-top:2px;">` + barra("RETORNO").replace("margin-top:8px;","");
+  h += `<table style="width:100%; border-collapse:collapse; table-layout:fixed; margin-top:6px;"><tr>${lab("NF retorno")}${val(x(e.nfRetorno||""))}${lab("Fornecedor")}${val(x(e.fornecedor||""))}</tr></table>`;
+  h += `<table style="width:100%; border-collapse:collapse; table-layout:fixed; margin-top:6px;"><tr>${th("Material","30%")}${th("C&oacute;digo","14%")}${th("Quant. enviada","9%")}${th("Recebido","10%")}${th("Faltante","10%")}${th("Data retorno","11%")}${th("OF retorno")}</tr>` +
+    (its.length ? its.map(i=>{ const rec = Number(i.recebido)||0; const falt = rec!==0 ? (Number(i.quant)||0)-rec : ""; return `<tr>${td(x(i.material||""))}${td(x(i.codigo||""))}${td(tercFmtNum(i.quant),"center")}${td(i.recebido!=null?tercFmtNum(i.recebido):"&nbsp;","center")}${td(falt===""?"&nbsp;":tercFmtNum(falt),"center")}${td(i.dataRetorno?isoParaBR(i.dataRetorno):"&nbsp;","center")}${td(x(i.ofRetorno||"")||"&nbsp;","center")}</tr>`; }).join("") : "") + `</table>`;
+  h += `<table style="width:100%; border-collapse:collapse; table-layout:fixed; margin-top:10px; page-break-inside:avoid;"><tr>${lab("Recebimento")}${val(x(e.recebimentoNome||"")+"<br>&nbsp;")}${lab("Data")}${val(e.recebimentoData?isoParaBR(e.recebimentoData):"")}</tr></table>` + rodape + `</div></div>`;
+  return h;
+}
+function abrirPreviewTerceiros(id, dados){
+  const e = dados || (DB.enviosTerceiros||[]).find(x=>x.id===id); if (!e) return;
+  const htmlDoc = gerarTercPrintHtml(e);
+  document.getElementById("qualPrintPreview").innerHTML = `<div style="padding:14px;">${htmlDoc}</div>`;
+  document.getElementById("qualidadePrintOverlay").classList.remove("hidden");
+  document.getElementById("qualImprimirAgoraBtn").onclick = ()=>imprimirComoPdf(htmlDoc, e.sequencia ? numTerc(e.sequencia) : "Envio-terceiros", { margem: "9mm" });
 }
 function abrirPreviewRnc(id, excluida){
   const r = (excluida ? (DB.rncsExcluidas||[]) : (DB.rncs||[])).find(x=>x.id===id); if (!r) return;
